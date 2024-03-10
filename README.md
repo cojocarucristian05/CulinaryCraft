@@ -4,7 +4,7 @@ CulinaryCraft is the perfect app for cooking enthusiasts and amateur chefs who w
 
 Whether you're looking for a quick and simple recipe for dinner or a sophisticated meal for special occasions, CulinaryCraft offers a wide range of culinary options tailored to your preferences and needs. With an intuitive and user-friendly interface, this app will inspire you to experiment and create new and innovative dishes right from the comfort of your kitchen.
 
-**Tools**:
--> Spring Boot
--> Flutter
--> PostgreSQL
+**Tools**: <br />
+-> Spring Boot <br />
+-> Flutter <br />
+-> PostgreSQL <br />
