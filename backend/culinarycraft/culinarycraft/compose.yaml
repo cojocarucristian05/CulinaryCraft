@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:16.0'
+    environment:
+      - 'POSTGRES_DB=culinary_craft_db'
+      - 'POSTGRES_PASSWORD=password'
+      - 'POSTGRES_USER=user'
+    ports:
+      - 5432:5432
