@@ -16,3 +16,22 @@ spring:
   docker:
     compose:
       enabled: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          # Google login
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+          # GitHub login
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
