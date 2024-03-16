@@ -9,7 +9,7 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @Table(name = "\"user\"")
-public class User {
+public class UserRegisterDTO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,12 +1,9 @@
 package ic.project.bytebistro.culinarycraft.service;
 
 
+import ic.project.bytebistro.culinarycraft.repository.entity.UserRegisterDTO;
 import org.springframework.security.core.userdetails.User;
 
 public interface UserService {
-//    UserDTO create(User user);
-//
-//    UserDTO read(Long id);
-
-    User registerNewUserAccount(ic.project.bytebistro.culinarycraft.repository.entity.User userDTO);
+    User registerNewUserAccount(UserRegisterDTO userRegisterDTODTO);
 }

@@ -1,7 +1,6 @@
 package ic.project.bytebistro.culinarycraft.controller;
 
-import ic.project.bytebistro.culinarycraft.repository.dto.UserDTO;
-import ic.project.bytebistro.culinarycraft.repository.entity.User;
+import ic.project.bytebistro.culinarycraft.repository.entity.UserRegisterDTO;
 import ic.project.bytebistro.culinarycraft.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,8 +47,8 @@ public class AuthController {
 
     @RequestMapping("/api/v1/register")
     @PostMapping
-    public org.springframework.security.core.userdetails.User register(@RequestBody User user) {
-        return userService.registerNewUserAccount(user);
+    public org.springframework.security.core.userdetails.User register(@RequestBody UserRegisterDTO userRegisterDTO) {
+        return userService.registerNewUserAccount(userRegisterDTO);
     }
 
     @RequestMapping("/api/v1/dashboard")
