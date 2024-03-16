@@ -1,0 +1,204 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Login</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            background-color: #f4f4f4;-->
+<!--        }-->
+<!--        .login-box {-->
+<!--            width: 300px;-->
+<!--            margin: 0 auto;-->
+<!--            padding: 20px;-->
+<!--            background-color: #fff;-->
+<!--            border-radius: 5px;-->
+<!--            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);-->
+<!--            margin-top: 100px;-->
+<!--        }-->
+<!--        .login-box h2 {-->
+<!--            text-align: center;-->
+<!--            margin-bottom: 20px;-->
+<!--        }-->
+<!--        .login-box input[type="text"],-->
+<!--        .login-box input[type="password"] {-->
+<!--            width: 100%;-->
+<!--            padding: 10px;-->
+<!--            margin-bottom: 15px;-->
+<!--            border: 1px solid #ddd;-->
+<!--            border-radius: 5px;-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+<!--        .login-box input[type="submit"] {-->
+<!--            width: 100%;-->
+<!--            padding: 10px;-->
+<!--            border: none;-->
+<!--            border-radius: 5px;-->
+<!--            background-color: #007bff;-->
+<!--            color: #fff;-->
+<!--            cursor: pointer;-->
+<!--        }-->
+<!--        .login-box input[type="submit"]:hover {-->
+<!--            background-color: #0056b3;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div class="login-box">-->
+<!--    <h2>Login</h2>-->
+<!--    <form action="#" method="post">-->
+<!--        <input type="text" name="username" placeholder="Username" required>-->
+<!--        <input type="password" name="password" placeholder="Password" required>-->
+<!--        <input type="submit" value="Login">-->
+<!--    </form>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .oauth-buttons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .oauth-buttons img {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+
+    <!-- Username and password form -->
+    <form th:action="@{/login}" method="post">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div>
+            <button type="submit">Login with Username/Password</button>
+        </div>
+    </form>
+
+    <!-- OAuth2 login buttons -->
+    <div class="oauth-buttons">
+        <p>Or login with:</p>
+        <a href="/login/oauth2/authorization/google">
+            <img src="google-icon.png" alt="Google">
+        </a>
+        <a href="/login/oauth2/authorization/github">
+            <img src="github-icon.png" alt="GitHub">
+        </a>
+    </div>
+</div>
+
+<script>
+    document.getElementById("registerButton").addEventListener("click", function() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        var data = {
+            username: username,
+            password: password
+        };
+
+        fetch('http://localhost:8080/api/v1/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log(response);
+                    alert('Login successful!');
+                    // Optionally redirect to another page or perform any other action
+                    window.location.href = '/api/v1/home'; // Redirect to success page
+                } else {
+                    throw new Error('Login failed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Login failed. Please try again later.');
+            });
+    });
+</script>
+
+</body>
+</html>

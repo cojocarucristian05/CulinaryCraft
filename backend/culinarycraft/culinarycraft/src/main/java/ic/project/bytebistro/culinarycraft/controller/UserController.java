@@ -14,15 +14,15 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
-    @PostMapping("/post")
-    public UserDTO create(@RequestBody User user) {
-        return userService.create(user);
-    }
-
-    @GetMapping("/get")
-    public UserDTO read(@RequestParam Long id) {
-        return userService.read(id);
-    }
+//
+//    @PostMapping("/post")
+//    public UserDTO create(@RequestBody User user) {
+//        return userService.create(user);
+//    }
+//
+//    @GetMapping("/get")
+//    public UserDTO read(@RequestParam Long id) {
+//        return userService.read(id);
+//    }
 
 }

@@ -17,8 +17,8 @@ public class User {
     private Long id;
 
     @NonNull
-    @Column(name = "name")
-    private String name;
+    @Column(name = "username")
+    private String username;
 
     @NonNull
     @Column(name = "email", unique = true)
