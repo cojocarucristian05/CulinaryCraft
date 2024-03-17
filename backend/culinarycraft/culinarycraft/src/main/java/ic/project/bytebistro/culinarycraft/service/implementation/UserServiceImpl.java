@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerNewUserAccount(UserRegisterDTO userRegisterDTO) {
-        if (usernameExists(userRegisterDTO.getUsername())) {
+        if (emailExists(userRegisterDTO.getEmail())) {
             throw new UserAlreadyExistException("There is an account with that email address: "
                     + userRegisterDTO.getEmail());
         }
@@ -40,7 +40,17 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public void create(UserRegisterDTO userRegisterDTO) {
+        if (emailExists(userRegisterDTO.getEmail()) || usernameExists(userRegisterDTO.getUsername())) {
+            throw new UserAlreadyExistException();
+        }
+        userRepository.save(userRegisterDTO);
+    }
+
     private boolean usernameExists(String username) {
         return userRepository.findByUsername(username) != null;
     }
+
+    private boolean emailExists(String email) { return userRepository.findByEmail(email) != null; }
 }
