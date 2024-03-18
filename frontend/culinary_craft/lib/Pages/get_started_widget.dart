@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'get_started_model.dart';
+import '../Models/get_started_model.dart';
 import 'onboarding_slideshow_widget.dart';
 
 class GetStartedWidget extends StatefulWidget {
@@ -83,7 +83,7 @@ class _GetStartedWidgetState extends State<GetStartedWidget> {
                         child: ElevatedButton(
                           onPressed: () {
                             HapticFeedback.lightImpact();
-                          //  Navigator.of(context).pushNamed('/onboarding'); // Redirecționează utilizatorul către pagina Onboarding
+                            Navigator.of(context).pushNamed('/onboarding'); // Redirecționează utilizatorul către pagina Onboarding
                           },
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),

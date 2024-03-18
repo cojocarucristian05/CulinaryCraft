@@ -1,5 +1,5 @@
 
-import 'get_started_widget.dart' show GetStartedWidget;
+import '../Pages/get_started_widget.dart' show GetStartedWidget;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';

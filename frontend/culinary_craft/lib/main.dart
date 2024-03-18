@@ -5,6 +5,7 @@ import 'Pages/get_started_widget.dart';
 void main() => runApp(MaterialApp(
   home: GetStartedWidget(),
   routes: {
-    //'/onboarding': (context) => OnboardingSlideshowWidget(),
+    '/home': (context) => GetStartedWidget(),
+    '/onboarding': (context) => OnboardingSlideshowWidget(),
   },
 ));
