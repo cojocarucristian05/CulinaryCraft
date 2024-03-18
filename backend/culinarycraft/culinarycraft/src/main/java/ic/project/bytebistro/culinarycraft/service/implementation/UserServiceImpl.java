@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = new User(userRegisterDTO.getUsername(),
-                userRegisterDTO.getEmail(),
+                userRegisterDTO.getPassword(),
                 Arrays.asList(  new SimpleGrantedAuthority("ROLE_USER"),
                         new SimpleGrantedAuthority("ROLE_ADMIN")
                 )

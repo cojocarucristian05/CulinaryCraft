@@ -8,10 +8,7 @@ import ic.project.bytebistro.culinarycraft.service.implementation.UserServiceDet
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -47,7 +44,7 @@ public class SecurityConfig {
         return httpSecurity
                 .authorizeHttpRequests( auth -> {
                     auth.requestMatchers("/api/v1/hello").permitAll();
-                    auth.requestMatchers("/api/v1/get_started_template").permitAll();
+                    auth.requestMatchers("/api/v1/get_started").permitAll();
                     auth.requestMatchers("/api/v1/login_template").permitAll();
                     auth.requestMatchers("/api/v1/register_template").permitAll();
                     auth.requestMatchers("/api/v1/login").permitAll();
@@ -57,14 +54,6 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/dashboard").hasAuthority("ROLE_ADMIN");
                     auth.anyRequest().authenticated();
                 })
-                .httpBasic(withDefaults())
-                .formLogin(form -> form
-                        .loginPage("/api/v1/login_template")
-                        .loginProcessingUrl("/api/v1/login")
-                        .successForwardUrl("/api/v1/get_started_template")
-                        .failureForwardUrl("/api/v1/login_template")
-                        .permitAll()
-                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(oauthUserService)).successHandler((request, response, authentication) -> {
                             CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
@@ -78,10 +67,11 @@ public class SecurityConfig {
                             response.sendRedirect("/api/v1/home");
                         })
                         .failureHandler((request, response, authentication) -> {
-                            response.sendRedirect("/api/v1/login_template");
+                            response.sendRedirect("/api/v1/register_template");
                         })
                         .loginPage("/api/v1/login_template")
                 )
+                .formLogin(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .build();
     }

@@ -78,18 +78,7 @@
 <div class="login-container">
     <h2>Login</h2>
     <!-- Username and password form -->
-    <form action="#" method="post">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <button type="button" id="loginButton">Login with Username/Password</button>
-        </div>
+    <form action="#"  method="post">
         <br>
         <!-- For Google sign in -->
         <div class="oauth-buttons">
@@ -99,6 +88,10 @@
         <!-- For Facebook sign in -->
         <div class="oauth-buttons">
             <button type="button" id="facebookSignInBtn">Sign in with Facebook</button>
+        </div>
+        <br>
+        <div>
+            <button type="button" id="loginButton">Login with Username/Password</button>
         </div>
         <br>
         <!-- Or register -->
@@ -111,38 +104,7 @@
 
 <script>
     document.getElementById("loginButton").addEventListener("click", function() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
-
-        var data = {
-            username: username,
-            password: password
-        };
-
-        console.log("username: " + username);
-        console.log("password: " + password);
-
-        fetch('http://localhost:8080/api/v1/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log(response);
-                alert('Login successful!');
-                // Optionally redirect to another page or perform any other action
-                window.location.href = '/api/v1/home'; // Redirect to success page
-            } else {
-                throw new Error('Login failed.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Login failed. Please try again later.');
-        });
+        window.location.href = '/login';
     });
 
     // For Google sign in

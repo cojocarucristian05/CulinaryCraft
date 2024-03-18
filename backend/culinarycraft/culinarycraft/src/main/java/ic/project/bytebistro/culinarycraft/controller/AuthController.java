@@ -17,7 +17,7 @@ public class AuthController {
     @RequestMapping("/api/v1/get_started")
     public ModelAndView getStartedTemplate() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("get_started_template");
+        modelAndView.setViewName("get_started");
         return modelAndView;
     }
 
