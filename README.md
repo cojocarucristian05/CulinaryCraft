@@ -8,3 +8,6 @@ Whether you're looking for a quick and simple recipe for dinner or a sophisticat
 -> Spring Boot <br />
 -> Flutter <br />
 -> PostgreSQL <br />
+
+**Wireframe:**<br />
+https://www.figma.com/file/dJX0q4NVfBOypzLAtDTHSB/CulinaryCraft_Wireframe?type=whiteboard&node-id=0-1&t=oLiMFasERmTxyomb-0
