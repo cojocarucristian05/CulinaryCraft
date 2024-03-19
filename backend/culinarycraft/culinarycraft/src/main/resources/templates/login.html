@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .oauth-buttons {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .oauth-buttons img {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+    <!-- Username and password form -->
+    <form action="#"  method="post">
+        <br>
+        <!-- For Google sign in -->
+        <div class="oauth-buttons">
+            <button type="button" id="googleSignInBtn">Sign in with Google</button>
+        </div>
+        <br>
+        <!-- For Facebook sign in -->
+        <div class="oauth-buttons">
+            <button type="button" id="facebookSignInBtn">Sign in with Facebook</button>
+        </div>
+        <br>
+        <div>
+            <button type="button" id="loginButton">Login with Username/Password</button>
+        </div>
+        <br>
+        <!-- Or register -->
+        <div class="oauth-buttons">
+            <button style="background-color: darkslategrey" type="button" id="registerButton">Register</button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    document.getElementById("loginButton").addEventListener("click", function() {
+        window.location.href = '/login';
+    });
+
+    // For Google sign in
+    document.getElementById('googleSignInBtn').addEventListener('click', function() {
+        window.location.href = '/oauth2/authorization/google';
+    });
+
+    // For facebook sign in
+    document.getElementById('facebookSignInBtn').addEventListener('click', function() {
+        window.location.href = '/oauth2/authorization/facebook';
+    });
+
+    // Or Register
+    document.getElementById('registerButton').addEventListener('click', function() {
+        window.location.href = '/api/v1/register_template';
+    });
+</script>
+
+</body>
+</html>

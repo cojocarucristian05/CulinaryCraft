@@ -13,4 +13,9 @@ public class DummyController {
         return "Hello world!";
     }
 
+    @GetMapping("/hello/secured")
+    public String helloSecured() {
+        return "Hello world!";
+    }
+
 }
