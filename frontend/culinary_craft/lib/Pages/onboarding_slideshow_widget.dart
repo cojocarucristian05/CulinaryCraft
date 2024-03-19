@@ -84,7 +84,7 @@ class _OnboardingSlideshowWidgetState extends State<OnboardingSlideshowWidget> {
                           onPressed: () {
                             HapticFeedback.lightImpact();
 
-                            // Navigator.of(context).pushNamed('Onboarding_Slideshow');
+                            Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
                           },
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
