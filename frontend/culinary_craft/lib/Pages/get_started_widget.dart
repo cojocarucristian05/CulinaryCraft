@@ -94,7 +94,7 @@ class _GetStartedWidgetState extends State<GetStartedWidget> {
                           ),
                           child: Text(
                             'Get Started',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.roboto(
                               fontSize: 22,
                               color: Colors.white, // Schimbați culoarea textului în alb
                             ),
