@@ -6,28 +6,29 @@ import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import '../Models/sign_in_model.dart';
-export '../Models/sign_in_model.dart';
+import '../Models/create_account_model.dart'; // Importăm modelul de creare a contului
+export '../Models/create_account_model.dart';
 
-class SignInWidget extends StatefulWidget {
-  const SignInWidget({Key? key}) : super(key: key);
+class CreateAccountWidget extends StatefulWidget {
+  const CreateAccountWidget({Key? key}) : super(key: key);
 
   @override
-  _SignInWidgetState createState() => _SignInWidgetState();
+  _CreateAccountWidgetState createState() => _CreateAccountWidgetState();
 }
 
-class _SignInWidgetState extends State<SignInWidget> {
+class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
   final bool isWeb = kIsWeb;
-  late SignInModel _model;
+  late CreateAccountModel _model; // Schimbăm modelul asociat
 
   @override
   void initState() {
     super.initState();
-    _model = SignInModel();
+    _model = CreateAccountModel(); // Inițializăm modelul de creare a contului
     _model.initState(context);
 
+    _model.fullNameController = TextEditingController(); // Inițializăm controllerul pentru nume
     _model.emailAddressController = TextEditingController(); // Inițializăm controllerul de email
     _model.passwordController = TextEditingController(); // Inițializăm controllerul de parolă
 
@@ -40,7 +41,6 @@ class _SignInWidgetState extends State<SignInWidget> {
           });
     }
   }
-
 
   @override
   void dispose() {
@@ -63,13 +63,24 @@ class _SignInWidgetState extends State<SignInWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sign In',
+                  'Create Account', // Schimbăm textul pentru pagina de creare a contului
                   style: GoogleFonts.roboto(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 30),
+                TextField(
+                  controller: _model.fullNameController, // Schimbăm controllerul pentru nume
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'Full Name', // Schimbăm eticheta câmpului
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
                 TextField(
                   controller: _model.emailAddressController,
                   keyboardType: TextInputType.emailAddress,
@@ -83,28 +94,43 @@ class _SignInWidgetState extends State<SignInWidget> {
                 SizedBox(height: 16),
                 TextField(
                   controller: _model.passwordController,
-                  obscureText: true,
+                  obscureText: !_model.passwordVisibility, // Schimbăm vizibilitatea parolei conform modelului
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _model.passwordVisibility ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _model.passwordVisibility = !_model.passwordVisibility;
+                        });
+                      },
                     ),
                   ),
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
-                    if (_model.emailAddressController?.text.isNotEmpty == true &&
+                    if (_model.fullNameController?.text.isNotEmpty == true &&
+                        _model.emailAddressController?.text.isNotEmpty == true &&
                         _model.passwordController?.text.isNotEmpty == true) {
-                      _model.signIn(context, _model.emailAddressController!.text, _model.passwordController!.text);
+                      _model.createAccount(context, _model.fullNameController!.text,
+                          _model.emailAddressController!.text, _model.passwordController!.text); // Apelăm metoda de creare a contului
                     } else {
-                      if(_model.emailAddressController?.text.isNotEmpty == true){
-                      }
-                      if( _model.passwordController?.text.isNotEmpty == false){
-                      }
+                      // Tratează cazurile în care unul dintre câmpuri este necompletat
                     }
                   },
-                  child: Text('Sign In', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    'Create Account',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18, // Mărim scrisul butonului
+                    ),
+                  ),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
                     backgroundColor: MaterialStateProperty.all(Color(0xFF0077B6)),
@@ -113,13 +139,22 @@ class _SignInWidgetState extends State<SignInWidget> {
                     )),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10), // Adăugăm spațiu între buton și textul de sub buton
+                Text(
+                  'By clicking "Create Account" you agree to CulinaryCraft\'s Terms of Use', // Adăugăm textul specificat
+                  textAlign: TextAlign.center, // Afișăm textul în centru
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey,
+                  ),
+                ),
+                SizedBox(height: 20), // Mărim spațiul sub text
                 InkWell(
                   onTap: () {
-                    // Handle forgot password
+                    Navigator.of(context).pushNamed('/signin');
                   },
                   child: Text(
-                    'I don\'t remember my password',
+                    'I already have an account', // Schimbăm textul pentru link-ul către pagina de sign-in
                     style: GoogleFonts.roboto(
                       fontSize: 14,
                       color: Colors.blue,
@@ -127,36 +162,6 @@ class _SignInWidgetState extends State<SignInWidget> {
                   ),
                 ),
                 SizedBox(height: _isKeyboardVisible ? 12 : 24), // Muta putin mai jos cand tastatura e vizibila
-                if (!_isKeyboardVisible)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Don\'t have an account yet?',
-                          style: GoogleFonts.roboto(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/signup');
-                          },
-                          child: Text('Create Account', style: TextStyle(color: Colors.white)),
-                          style: ButtonStyle(
-                            minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
-                            backgroundColor: MaterialStateProperty.all(Color(0xFF90E0EF)),
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            )),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),

@@ -147,7 +147,7 @@ class _SignInWithGoogleOrFacebookWidgetState
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                // Handle sign up
+                                Navigator.of(context).pushNamed('/signup');
                               },
                               style: ButtonStyle(
                                 minimumSize: MaterialStateProperty.all(
