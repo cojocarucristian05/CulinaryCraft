@@ -37,7 +37,7 @@ class _GetStartedWidgetState extends State<GetStartedWidget> {
           : FocusScope.of(context).unfocus(),
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           top: true,
           child: Padding(
@@ -59,7 +59,7 @@ class _GetStartedWidgetState extends State<GetStartedWidget> {
                             height: 347,
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
-                              image: DecorationImage(
+                              image: const DecorationImage(
                                 fit: BoxFit.fill,
                                 image: AssetImage(
                                   'assets/images/icon2.png',
@@ -74,7 +74,7 @@ class _GetStartedWidgetState extends State<GetStartedWidget> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [

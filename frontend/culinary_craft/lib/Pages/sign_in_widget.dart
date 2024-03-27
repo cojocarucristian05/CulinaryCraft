@@ -103,6 +103,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                       if( _model.passwordController?.text.isNotEmpty == false){
                       }
                     }
+                    Navigator.of(context).pushNamed('/home');
                   },
                   child: Text('Sign In', style: TextStyle(color: Colors.white)),
                   style: ButtonStyle(
