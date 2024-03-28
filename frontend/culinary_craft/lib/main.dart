@@ -15,11 +15,14 @@ void main() async {
   runApp(MaterialApp(
     home: GetStartedWidget(),
     routes: {
-      '/home': (context) => GetStartedWidget(),
+      '/start': (context) => GetStartedWidget(),
       '/onboarding': (context) => OnboardingSlideshowWidget(),
       '/signin_with_google_or_facebook': (context) => SignInWithGoogleOrFacebookWidget(),
       '/signin': (context) => SignInWidget(),
       '/signup': (context) => CreateAccountWidget(),
+      '/profile': (context) => ProfileWidget(),
+      '/home': (context) => HomeWidget(),
+      '/edit_profile': (context) => EditProfileWidget(),
     },
   ));
 }
