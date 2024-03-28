@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "591392172427",
+    "project_id": "culinarycraft-10c08",
+    "storage_bucket": "culinarycraft-10c08.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591392172427:android:998d3faa8b15303564278e",
+        "android_client_info": {
+          "package_name": "com.example.culinary_craft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591392172427-mlv63f1h2dhveo32hc8em72nl4sen0e2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVqOTtiPFKyIQFluL3js4zbfs-nSl_QvE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591392172427-mlv63f1h2dhveo32hc8em72nl4sen0e2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "591392172427-1tn6r191ksl4dp85ag5gcs9ma4g52umj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.culinaryCraft.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

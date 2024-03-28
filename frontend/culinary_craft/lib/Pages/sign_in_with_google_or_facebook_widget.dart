@@ -1,7 +1,10 @@
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInWithGoogleOrFacebookWidget extends StatefulWidget {
   const SignInWithGoogleOrFacebookWidget({super.key});
@@ -13,6 +16,21 @@ class SignInWithGoogleOrFacebookWidget extends StatefulWidget {
 
 class _SignInWithGoogleOrFacebookWidgetState
     extends State<SignInWithGoogleOrFacebookWidget> {
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  // User? user;
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   auth.authStateChanges().listen((event) {
+  //     setState(() {
+  //       user = event;
+  //     });
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +61,7 @@ class _SignInWithGoogleOrFacebookWidgetState
                         child: ElevatedButton(
                           onPressed: () async {
                             // Handle continue with Google
+                            _handleGoogleSignIn();
                           },
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(
@@ -81,6 +100,7 @@ class _SignInWithGoogleOrFacebookWidgetState
                         child: ElevatedButton(
                           onPressed: () async {
                             // Handle continue with Facebook
+                            print("Facebook signed in successfully!");
                           },
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(
@@ -182,5 +202,38 @@ class _SignInWithGoogleOrFacebookWidgetState
         ),
       ),
     );
+  }
+
+  _handleGoogleSignIn() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleSignInAuthentication.idToken,
+          accessToken: googleSignInAuthentication.accessToken,
+        );
+
+        // Sign in with Firebase Auth
+        final UserCredential userCredential = await auth.signInWithCredential(credential);
+        final User? user = userCredential.user;
+
+        // Extract user's email and name
+        final String? userEmail = user?.email;
+        final String? userName = user?.displayName;
+
+        // Print or use user's email and name
+        print("User email: $userEmail");
+        print("User name: $userName");
+
+        print("Sign in successfully!");
+        Navigator.pushNamed(context, "/home");
+      }
+    } catch(e) {
+      print(e);
+      // showToast()
+    }
   }
 }
