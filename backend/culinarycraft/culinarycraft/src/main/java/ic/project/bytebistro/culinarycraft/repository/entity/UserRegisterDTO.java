@@ -27,4 +27,7 @@ public class UserRegisterDTO {
     @NonNull
     @Column(name = "password")
     private String password;
+
+    @Column(name = "code")
+    private Long code;
 }
