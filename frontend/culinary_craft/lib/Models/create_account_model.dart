@@ -1,3 +1,4 @@
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class CreateAccountModel {
@@ -66,7 +67,6 @@ class CreateAccountModel {
   }
 
   void createAccount(BuildContext context, String fullName, String email, String password) {
-    // Implementarea procesului de creare a contului
-    print('Attempting to create account with full name: $fullName, email: $email, and password: $password');
+    AuthService.register(context, fullName, email, password);
   }
 }
