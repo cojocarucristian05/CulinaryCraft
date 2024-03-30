@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class SignInModel {
@@ -52,14 +53,8 @@ class SignInModel {
     passwordController?.dispose();
   }
 
-  void signIn(BuildContext context, String email, String password) {
+  void signIn(BuildContext context, String username, String password) {
     // Verificăm dacă adresa de email este validă folosind expresia regulată
-    if (!emailRegex.hasMatch(email)) {
-      // Afisam un mesaj de eroare dacă adresa de email nu este validă
-      print('Email is not valid.');
-      return;
-    }
-
-    print('Attempting to sign in with email: $email and password: $password');
+    AuthService.login(context, username, password);
   }
 }
