@@ -11,10 +11,14 @@ import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseD
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.UserService;
+import ic.project.bytebistro.culinarycraft.utils.PasswordGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
+
+import static ic.project.bytebistro.culinarycraft.utils.PasswordGenerator.generatePassword;
+import static ic.project.bytebistro.culinarycraft.utils.PasswordGenerator.hashPassword;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -68,6 +72,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO signInWithGoogleOrFacebook(UserLoginWithGoogleOrFacebookDTO userLoginWithGoogleOrFacebookDTO, LoginType loginType) {
         User user = userRepository.findByEmailAndLoginType(userLoginWithGoogleOrFacebookDTO.getEmail(), loginType);
         User newUser = modelMapper.map(userLoginWithGoogleOrFacebookDTO, User.class);
+        newUser.setPassword(hashPassword(generatePassword(12)));
         newUser.setLoginType(loginType);
         if (user != null) {
             if (user.getLoginType() == loginType) {

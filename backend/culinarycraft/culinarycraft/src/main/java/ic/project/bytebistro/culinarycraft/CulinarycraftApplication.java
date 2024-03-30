@@ -15,7 +15,12 @@ public class CulinarycraftApplication {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080/api/v1/register"));
+		configuration.setAllowedOrigins(Arrays.asList(
+				"http://localhost:8080/api/v1/register",
+				"http://localhost:8080/api/v1/login",
+				"http://localhost:8080/api/v1/sign-in-with-google",
+				"http://localhost:8080/api/v1/sign-in-with-facebook"
+		));
 		configuration.setAllowedMethods(Arrays.asList("POST"));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
