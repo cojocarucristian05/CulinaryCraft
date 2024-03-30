@@ -3,7 +3,7 @@ package ic.project.bytebistro.culinarycraft.service.implementation;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import ic.project.bytebistro.culinarycraft.repository.entity.UserRegisterDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
 import ic.project.bytebistro.culinarycraft.service.MailService;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -36,7 +36,7 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendWelcomeEmail(UserRegisterDTO userRegisterDTO) {
+    public void sendWelcomeEmail(UserRegisterRequestDTO userRegisterRequestDTO) {
         MimeMessage message = new MimeMessage(getSession());
         try {
             MimeMessageHelper helper = new MimeMessageHelper(
@@ -44,13 +44,35 @@ public class MailServiceImpl implements MailService {
                     MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                     StandardCharsets.UTF_8.name());
             helper.setFrom(new InternetAddress(adminEmail));
-            helper.setTo(userRegisterDTO.getEmail());
+            helper.setTo(userRegisterRequestDTO.getEmail());
             helper.setSubject("Welcome to " + companyName);
             Template template  = configuration.getTemplate("welcome.html");
             Map<String, Object> templateMapper = new HashMap<>();
-            templateMapper.put("username", userRegisterDTO.getUsername());
+            templateMapper.put("username", userRegisterRequestDTO.getUsername());
             templateMapper.put("adminEmail", adminEmail);
             templateMapper.put("companyName", companyName);
+            String htmlTemplate = FreeMarkerTemplateUtils.processTemplateIntoString(template, templateMapper);
+            helper.setText(htmlTemplate, true);
+            Transport.send(message);
+        } catch (MessagingException | IOException | TemplateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void sendResetPasswordCode(String email, Long code) {
+        MimeMessage message = new MimeMessage(getSession());
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    message,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+            helper.setFrom(new InternetAddress(adminEmail));
+            helper.setTo(email);
+            helper.setSubject("Welcome to " + companyName);
+            Template template = configuration.getTemplate("send-code.html");
+            Map<String, Object> templateMapper = new HashMap<>();
+            templateMapper.put("code", code);
             String htmlTemplate = FreeMarkerTemplateUtils.processTemplateIntoString(template, templateMapper);
             helper.setText(htmlTemplate, true);
             Transport.send(message);
