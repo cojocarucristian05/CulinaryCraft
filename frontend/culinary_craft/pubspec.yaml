@@ -23,6 +23,7 @@ dependencies:
   firebase_auth: ^4.10.1
   google_sign_in: ^6.2.1
   flutter_facebook_auth: '^3.5.0'
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_launcher_icons: 0.13.1

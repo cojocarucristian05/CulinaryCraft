@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Components/appbar_widget.dart';
 import '../Models/home_model.dart';
 
@@ -14,6 +15,10 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   late HomeModel _model;
+
+  // int id = 0;
+  // String username = "";
+  // String email = "";
 
   @override
   void initState() {
@@ -34,6 +39,22 @@ class _HomeWidgetState extends State<HomeWidget> {
 
     super.dispose();
   }
+
+  void loadData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int id = prefs.getInt('id') ?? 0;
+    String username = prefs.getString('username') ?? "";
+    String email = prefs.getString('email') ?? "";
+    printData(id, username, email);
+  }
+
+  void printData(int id, String username, String email) {
+    print("Id: ${id}");
+    print("Username: ${username}");
+    print("Email: ${email}");
+  }
+
+  // void
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +96,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, 'RecipePage');
+                    loadData();
+                    // Navigator.pushNamed(context, 'RecipePage');
                   },
                   child: Text(
                     'Search Recipes',

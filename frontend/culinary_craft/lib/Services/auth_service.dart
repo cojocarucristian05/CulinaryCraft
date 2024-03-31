@@ -52,18 +52,7 @@ class AuthService {
     print("status: ${response.statusCode}");
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(responseData);
-      if (responseData.containsKey('id')) {
-        print("Id: ${responseData['id']}");
-      }
-      if (responseData.containsKey('username')) {
-        print("Username: ${responseData['username']}");
-        setUserId(responseData['username']);
-      }
-      if (responseData.containsKey('email')) {
-        print("Email: ${responseData['email']}");
-      }
+      retriveDataFromResponse(response);
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
       print("Error!");
@@ -88,19 +77,38 @@ class AuthService {
     print("status: ${response.statusCode}");
 
     if (response.statusCode == 200) {
+      retriveDataFromResponse(response);
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
       print("Error!");
     }
   }
 
-  static Future<bool> setUserId(String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString("id", value);
+  static retriveDataFromResponse(http.Response response) {
+    int id = 0;
+    String username = "";
+    String email = "";
+    Map<String, dynamic> responseData = jsonDecode(response.body);
+    if (responseData.containsKey('id')) {
+      print("Id: ${responseData['id']}");
+      id = responseData['id'];
+    }
+    if (responseData.containsKey('username')) {
+      print("Username: ${responseData['username']}");
+      // setUserId(responseData['username']);
+      username = responseData['username'];
+    }
+    if (responseData.containsKey('email')) {
+      print("Email: ${responseData['email']}");
+      email = responseData['email'];
+    }
+    setData(id, username, email);
   }
 
-  static Future<String?> getUserId(String value) async {
+  static void setData(id, username, email) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString("id");
+    prefs.setInt('id', id);
+    prefs.setString('username', username);
+    prefs.setString('email', email);
   }
 }
