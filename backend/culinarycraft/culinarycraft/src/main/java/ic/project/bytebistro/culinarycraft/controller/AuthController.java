@@ -54,4 +54,16 @@ public class AuthController {
         mailService.sendResetPasswordCode(email, code);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<Void> forgotPassword(@RequestParam Long userId, @RequestBody Long securityCode) {
+        userService.verifySecurityCode(userId, securityCode);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestParam Long userId, @RequestBody String newPassword) {
+        userService.changePassword(userId, newPassword);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

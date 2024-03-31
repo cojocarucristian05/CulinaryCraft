@@ -1,9 +1,6 @@
 package ic.project.bytebistro.culinarycraft.exception.controller;
 
-import ic.project.bytebistro.culinarycraft.exception.NoOauth2AuthenticationException;
-import ic.project.bytebistro.culinarycraft.exception.UserAlreadyExistException;
-import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
-import ic.project.bytebistro.culinarycraft.exception.UserUnauthorizedException;
+import ic.project.bytebistro.culinarycraft.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,6 +34,11 @@ public class GlobalExceptionController {
     @ExceptionHandler(value = UserUnauthorizedException.class)
     public ResponseEntity<String> handelNoSuchAlgorithmException(UserUnauthorizedException userUnauthorizedException) {
         return new ResponseEntity<>(userUnauthorizedException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = InvalidSecurityCodeException.class)
+    public ResponseEntity<String> handelInvalidSecurityCodeException(InvalidSecurityCodeException invalidSecurityCodeException) {
+        return new ResponseEntity<>(invalidSecurityCodeException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
 }
