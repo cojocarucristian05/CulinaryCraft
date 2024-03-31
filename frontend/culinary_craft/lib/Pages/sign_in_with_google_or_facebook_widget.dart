@@ -2,6 +2,7 @@ import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -100,7 +101,8 @@ class _SignInWithGoogleOrFacebookWidgetState
                         child: ElevatedButton(
                           onPressed: () async {
                             // Handle continue with Facebook
-                            print("Facebook signed in successfully!");
+                            // print("Facebook signed in successfully!");
+                            _handleFacebookSignIn();
                           },
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all(
@@ -224,16 +226,36 @@ class _SignInWithGoogleOrFacebookWidgetState
         final String? userEmail = user?.email;
         final String? userName = user?.displayName;
 
-        // Print or use user's email and name
-        print("User email: $userEmail");
-        print("User name: $userName");
+        if (userEmail != null && userName != null) {
+          AuthService.signInWithGoogle(context, userName, userEmail);
+        }
 
-        print("Sign in successfully!");
         Navigator.pushNamed(context, "/home");
       }
     } catch(e) {
       print(e);
-      // showToast()
     }
+  }
+
+  _handleFacebookSignIn() async {
+      // Trigger the sign-in flow
+      final LoginResult loginResult = await FacebookAuth.instance.login();
+
+      if (loginResult.status == LoginStatus.success) {
+        final AccessToken accessToken = loginResult.accessToken!;
+        final OAuthCredential credential =
+        FacebookAuthProvider.credential(accessToken.token);
+        try {
+          Future<UserCredential> userCredential = FirebaseAuth.instance.signInWithCredential(credential);
+          print(userCredential);
+          print("Facebook signed in successfully!");
+        } on FirebaseAuthException catch (e) {
+          // manage Firebase authentication exceptions
+        } catch (e) {
+          // manage other exceptions
+        }
+      } else {
+        // login was not successful, for example user cancelled the process
+      }
   }
 }

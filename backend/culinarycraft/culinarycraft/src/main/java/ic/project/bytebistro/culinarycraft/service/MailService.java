@@ -1,7 +1,9 @@
 package ic.project.bytebistro.culinarycraft.service;
 
-import ic.project.bytebistro.culinarycraft.repository.entity.UserRegisterDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
 
 public interface MailService {
-    public void sendWelcomeEmail(UserRegisterDTO userRegisterDTO);
+     void sendWelcomeEmail(UserRegisterRequestDTO userRegisterRequestDTO);
+
+     void sendResetPasswordCode(String email, Long code);
 }

@@ -1,6 +1,10 @@
 package ic.project.bytebistro.culinarycraft.controller;
 
-import ic.project.bytebistro.culinarycraft.repository.entity.UserRegisterDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
+import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.service.MailService;
 import ic.project.bytebistro.culinarycraft.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,9 +27,31 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserRegisterDTO> create(@RequestBody UserRegisterDTO userRegisterDTO) {
-        UserRegisterDTO savedUser = userService.create(userRegisterDTO);
-        CompletableFuture.runAsync(() -> mailService.sendWelcomeEmail(userRegisterDTO));
+    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
+        UserResponseDTO savedUser = userService.create(userRegisterRequestDTO);
+        CompletableFuture.runAsync(() -> mailService.sendWelcomeEmail(userRegisterRequestDTO));
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDTO> login(@RequestBody UserLoginRequestDTO userLoginRequestDTO) {
+        return new ResponseEntity<>(userService.login(userLoginRequestDTO), HttpStatus.OK);
+    }
+
+    @PostMapping("/sign-in-with-google")
+    public ResponseEntity<UserResponseDTO> signInWithGoogle(@RequestBody UserLoginWithGoogleOrFacebookDTO userLoginWithGoogleOrFacebookDTO) {
+        return new ResponseEntity<>(userService.signInWithGoogleOrFacebook(userLoginWithGoogleOrFacebookDTO, LoginType.GOOGLE), HttpStatus.OK);
+    }
+
+    @PostMapping("/sign-in-with-facebook")
+    public ResponseEntity<UserResponseDTO> signInWithFacebook(@RequestBody UserLoginWithGoogleOrFacebookDTO userLoginWithGoogleOrFacebookDTO) {
+        return new ResponseEntity<>(userService.signInWithGoogleOrFacebook(userLoginWithGoogleOrFacebookDTO, LoginType.FACEBOOK), HttpStatus.OK);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestParam String email) {
+        Long code = userService.forgotPassword(email);
+        mailService.sendResetPasswordCode(email, code);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

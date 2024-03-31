@@ -9,7 +9,7 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @Table(name = "\"user\"")
-public class UserRegisterDTO {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,7 +21,7 @@ public class UserRegisterDTO {
     private String username;
 
     @NonNull
-    @Column(name = "email", unique = true)
+    @Column(name = "email")
     private String email;
 
     @NonNull
@@ -30,4 +30,8 @@ public class UserRegisterDTO {
 
     @Column(name = "code")
     private Long code;
+
+    @Column(name = "login_type")
+    LoginType loginType;
+
 }
