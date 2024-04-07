@@ -15,4 +15,7 @@ public interface UserService {
 
     UserResponseDTO signInWithGoogleOrFacebook(UserLoginWithGoogleOrFacebookDTO userLoginWithGoogleOrFacebookDTO, LoginType loginType);
 
+    void verifySecurityCode(Long userId, Long securityCode);
+
+    void changePassword(Long userId, String newPassword);
 }

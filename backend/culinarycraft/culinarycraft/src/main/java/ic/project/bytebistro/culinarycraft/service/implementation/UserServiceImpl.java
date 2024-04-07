@@ -1,5 +1,6 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
+import ic.project.bytebistro.culinarycraft.exception.InvalidSecurityCodeException;
 import ic.project.bytebistro.culinarycraft.exception.UserAlreadyExistException;
 import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
 import ic.project.bytebistro.culinarycraft.exception.UserUnauthorizedException;
@@ -11,7 +12,6 @@ import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseD
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.UserService;
-import ic.project.bytebistro.culinarycraft.utils.PasswordGenerator;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +80,27 @@ public class UserServiceImpl implements UserService {
             }
         }
         return modelMapper.map(userRepository.save(newUser), UserResponseDTO.class);
+    }
+
+    @Override
+    public void verifySecurityCode(Long userId, Long securityCode) {
+        User user = userRepository.findByIdAndLoginType(userId, LoginType.USERNAME_PASSWORD);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        if (!user.getCode().equals(securityCode)) {
+            throw new InvalidSecurityCodeException();
+        }
+    }
+
+    @Override
+    public void changePassword(Long userId, String newPassword) {
+        User user = userRepository.findByIdAndLoginType(userId, LoginType.USERNAME_PASSWORD);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        user.setPassword(newPassword);
+        userRepository.save(user);
     }
 
     private boolean usernameExists(String username) {
