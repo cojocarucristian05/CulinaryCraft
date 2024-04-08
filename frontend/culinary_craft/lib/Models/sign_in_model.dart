@@ -34,7 +34,7 @@ class SignInModel {
     if (val == null || val.isEmpty) {
       return 'Password is required.';
     }
-
+    Navigator.of(context).pushNamed('/home');
     return null;
   }
 

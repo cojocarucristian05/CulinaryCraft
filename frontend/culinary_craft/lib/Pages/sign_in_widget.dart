@@ -74,7 +74,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                   controller: _model.emailAddressController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Username',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

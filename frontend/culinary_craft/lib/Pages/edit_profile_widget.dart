@@ -94,6 +94,7 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                 ElevatedButton(
                   onPressed: () async {
                     // Adăugați aici logica pentru resetarea parolei
+                    Navigator.of(context).pushNamed('/forgot_password');
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF0077B6)),

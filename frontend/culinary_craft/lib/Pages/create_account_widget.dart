@@ -74,7 +74,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   controller: _model.fullNameController, // Schimbăm controllerul pentru nume
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    labelText: 'Full Name', // Schimbăm eticheta câmpului
+                    labelText: 'Username', // Schimbăm eticheta câmpului
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
