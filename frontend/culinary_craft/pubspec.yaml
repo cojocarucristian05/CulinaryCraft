@@ -24,6 +24,7 @@ dependencies:
   google_sign_in: ^6.2.1
   flutter_facebook_auth: '^3.5.0'
   shared_preferences: ^2.2.2
+  pin_code_fields: 8.0.1
 
 dev_dependencies:
   flutter_launcher_icons: 0.13.1

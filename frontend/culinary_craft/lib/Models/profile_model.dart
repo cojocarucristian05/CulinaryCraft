@@ -1,5 +1,5 @@
 
-import 'profile_widget.dart' show ProfileWidget;
+import 'profile_model.dart' show ProfileWidget;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';

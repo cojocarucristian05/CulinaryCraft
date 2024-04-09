@@ -1,5 +1,9 @@
+import 'package:culinary_craft_wireframe/Models/change_password_model.dart';
+import 'package:culinary_craft_wireframe/Pages/change_password_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/create_account_widget.dart';
+import 'package:culinary_craft_wireframe/Pages/forgot_password_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/onboarding_slideshow_widget.dart';
+import 'package:culinary_craft_wireframe/Pages/reset_password_with_code_widget.dart';
 import 'package:culinary_craft_wireframe/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +30,9 @@ void main() async {
       '/profile': (context) => ProfileWidget(),
       '/home': (context) => HomeWidget(),
       '/edit_profile': (context) => EditProfileWidget(),
+      '/forgot_password':(context) => ForgotPasswordWidget(),
+      '/reset_password_with_code':(context) => ResetPasswordWithCodeWidget(),
+      '/change_password':(context) => ChangePasswordWidget(),
     },
   ));
 }
