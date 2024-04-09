@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -33,5 +35,8 @@ public class User {
 
     @Column(name = "login_type")
     LoginType loginType;
+
+    @OneToMany(mappedBy = "user")
+    private List<Recipe> myRecipes;
 
 }

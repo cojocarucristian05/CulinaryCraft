@@ -41,4 +41,9 @@ public class GlobalExceptionController {
         return new ResponseEntity<>(invalidSecurityCodeException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(value = ImageNotFoundException.class)
+    public ResponseEntity<String> handelImageNotFoundException(ImageNotFoundException imageNotFoundException) {
+        return new ResponseEntity<>(imageNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }
