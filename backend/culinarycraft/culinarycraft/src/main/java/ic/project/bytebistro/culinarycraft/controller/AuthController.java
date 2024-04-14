@@ -3,6 +3,7 @@ package ic.project.bytebistro.culinarycraft.controller;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.service.MailService;
@@ -49,14 +50,15 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestParam String email) {
-        Long code = userService.forgotPassword(email);
+    public ResponseEntity<Long> forgotPassword(@RequestParam String email) {
+        ForgotPasswordDTO forgotPasswordDTO = userService.forgotPassword(email);
+        Long code = forgotPasswordDTO.getSecurityCode();
         mailService.sendResetPasswordCode(email, code);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(forgotPasswordDTO.getUserId(), HttpStatus.OK);
     }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<Void> forgotPassword(@RequestParam Long userId, @RequestBody Long securityCode) {
+    public ResponseEntity<Void> verifyCode(@RequestParam Long userId, @RequestBody Long securityCode) {
         userService.verifySecurityCode(userId, securityCode);
         return new ResponseEntity<>(HttpStatus.OK);
     }

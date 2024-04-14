@@ -11,6 +11,7 @@ import ic.project.bytebistro.culinarycraft.repository.UserRepository;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ImageDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long forgotPassword(String email) {
+    public ForgotPasswordDTO forgotPassword(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UserNotFoundException();
@@ -88,7 +89,10 @@ public class UserServiceImpl implements UserService {
         Long code = random.nextLong(1000, 9999);
         user.setCode(code);
         userRepository.save(user);
-        return code;
+        ForgotPasswordDTO forgotPasswordDTO = new ForgotPasswordDTO();
+        forgotPasswordDTO.setUserId(user.getId());
+        forgotPasswordDTO.setSecurityCode(code);
+        return forgotPasswordDTO;
     }
 
     @Override
