@@ -84,6 +84,52 @@ class AuthService {
     }
   }
 
+  static void forgotPassword(BuildContext context, String email) async {
+    var url = Uri.parse("$baseURL/forgot-password?email=$email");
+    Map<String, String> cookies = {};
+
+    http.Response response = await http.post(
+        url,
+        headers: headers,
+    );
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      dynamic responseData = jsonDecode(response.body);
+      if (responseData is int) {
+        print("User ID: $responseData");
+        Navigator.of(context).pushNamed('/reset_password_with_code');
+      } else {
+        print("Error: Unexpected response format");
+      }
+    } else {
+      print("Error!");
+    }
+  }
+
+  static void verifyCode(BuildContext context, String securityCode) async {
+
+    int? id = await getId();
+
+    var url = Uri.parse("$baseURL/verify-code?userId=$id");
+    Map<String, String> cookies = {};
+
+    http.Response response = await http.post(
+      url,
+      headers: headers,
+      body: securityCode
+    );
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).pushNamed('/home');
+    } else {
+      print("Error!");
+    }
+  }
+
   static retriveDataFromResponse(http.Response response) {
     int id = 0;
     String username = "";
@@ -110,5 +156,15 @@ class AuthService {
     prefs.setInt('id', id);
     prefs.setString('username', username);
     prefs.setString('email', email);
+  }
+
+  static void setId(id) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('id', id);
+  }
+
+  static Future<int?> getId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('id');
   }
 }

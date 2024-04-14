@@ -1,3 +1,4 @@
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
@@ -117,10 +118,8 @@ class _ResetPasswordWithCodeWidgetState
                           padding: const EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
                           child: ElevatedButton(
                             onPressed: () async {
-                              //enteredCode = _model.pinCodeController?.text ?? ""; // Citirea codului introdus
-
-                             // print(enteredCode); // Afișarea codului introdus
-                              Navigator.of(context).pushNamed('/change_password');
+                              // String enteredPin = _model.pinCodeController!.text;
+                              AuthService.verifyCode(context, enteredCode);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
