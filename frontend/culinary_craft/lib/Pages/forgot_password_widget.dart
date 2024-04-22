@@ -1,3 +1,4 @@
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../Models/forgot_password_model.dart';
 
@@ -91,10 +92,10 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
                       String emailAddress = _model.emailAddressController!.text;
                       print(emailAddress);
                       // Adăugați aici logica pentru resetarea parolei
+                      AuthService.forgotPassword(context, _model.emailAddressController!.text);
                     } else {
                       print("Email address controller is null.");
                     }
-                    Navigator.of(context).pushNamed('/reset_password_with_code');
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF0077B6)),

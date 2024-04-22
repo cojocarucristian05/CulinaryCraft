@@ -117,6 +117,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                 InkWell(
                   onTap: () {
                     // Handle forgot password
+                    Navigator.of(context).pushNamed('/forgot_password');
                   },
                   child: Text(
                     'I don\'t remember my password',

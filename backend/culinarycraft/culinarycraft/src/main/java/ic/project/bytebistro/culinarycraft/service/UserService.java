@@ -3,6 +3,7 @@ package ic.project.bytebistro.culinarycraft.service;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
@@ -17,7 +18,7 @@ public interface UserService {
 
     UserResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
 
-    Long forgotPassword(String email);
+    ForgotPasswordDTO forgotPassword(String email);
 
     UserResponseDTO signInWithGoogleOrFacebook(UserLoginWithGoogleOrFacebookDTO userLoginWithGoogleOrFacebookDTO, LoginType loginType);
 
