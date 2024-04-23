@@ -1,9 +1,7 @@
 package ic.project.bytebistro.culinarycraft.repository.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,6 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "\"user\"")
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -36,7 +36,7 @@ public class User {
     @Column(name = "login_type")
     LoginType loginType;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Recipe> myRecipes;
 
 }

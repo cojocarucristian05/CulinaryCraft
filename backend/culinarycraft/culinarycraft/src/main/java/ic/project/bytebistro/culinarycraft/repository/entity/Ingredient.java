@@ -1,10 +1,18 @@
 package ic.project.bytebistro.culinarycraft.repository.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Ingredient {
 
     @Id
@@ -15,9 +23,9 @@ public class Ingredient {
     @Column(name = "ingredient_name")
     private String name;
 
-    //    private Image image;
+    @Column(name = "url_image")
+    private String urlImage;
 
-    @ManyToOne
-    @JoinColumn(name = "recipe_id", nullable = false)
-    private Recipe recipe;
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "ingredients")
+    private List<Recipe> recipes;
 }

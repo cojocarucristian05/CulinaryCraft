@@ -27,7 +27,7 @@ public class Image {
     @Column(name = "imagedata", length = 1000)
     private byte[] imageData;
 
-    @OneToOne(mappedBy = "image")
-    private Recipe recipe;
+//    @OneToOne(mappedBy = "image")
+//    private Recipe recipe;
 
 }

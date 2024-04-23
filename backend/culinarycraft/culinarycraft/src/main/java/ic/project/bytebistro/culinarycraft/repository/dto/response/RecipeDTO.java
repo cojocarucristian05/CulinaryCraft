@@ -9,5 +9,5 @@ public class RecipeDTO {
     private String name;
     private String description;
     private List<IngredientDTO> ingredients;
-    private ImageDTO imageDTO;
+    private String imageUrl;
 }

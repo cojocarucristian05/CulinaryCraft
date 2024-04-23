@@ -26,9 +26,9 @@ public interface UserService {
 
     void changePassword(Long userId, String newPassword);
 
-    RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe);
+//    RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe);
 
     List<RecipeDTO> getMyRecipes(Long userId, LoginType loginType);
 
-    RecipeDTO createRecipe(Long userId, LoginType loginType, String name, String description, MultipartFile file) throws IOException;
+//    RecipeDTO createRecipe(Long userId, LoginType loginType, String name, String description, MultipartFile file) throws IOException;
 }

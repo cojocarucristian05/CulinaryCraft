@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ForgotPasswordDTO forgotPassword(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailAndLoginType(email, LoginType.USERNAME_PASSWORD);
         if (user == null) {
             throw new UserNotFoundException();
         }
@@ -130,20 +130,20 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    @Override
-    public RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe) {
-        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUser == null) {
-            throw new UserNotFoundException();
-        }
-        savedUser.getMyRecipes().add(recipe);
-        recipe.getIngredients()
-                .forEach(ingredient -> ingredient.setRecipe(recipe));
-        recipe.setUser(savedUser);
-        recipeRepository.save(recipe);
-        ingredientRepository.saveAll(recipe.getIngredients());
-        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
-    }
+//    @Override
+//    public RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe) {
+//        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
+//        if (savedUser == null) {
+//            throw new UserNotFoundException();
+//        }
+//        savedUser.getMyRecipes().add(recipe);
+//        recipe.getIngredients()
+//                .forEach(ingredient -> ingredient.setRecipe(recipe));
+//        recipe.setUser(savedUser);
+//        recipeRepository.save(recipe);
+//        ingredientRepository.saveAll(recipe.getIngredients());
+//        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
+//    }
 
     @Override
     public List<RecipeDTO> getMyRecipes(Long userId, LoginType loginType) {
@@ -155,30 +155,30 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(savedUsed.getMyRecipes(), listType);
     }
 
-    @Override
-    public RecipeDTO createRecipe(Long userId, LoginType loginType, String name,
-                                  String description, MultipartFile file) throws IOException {
-        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUser == null) {
-            throw new UserNotFoundException();
-        }
-        Image image = Image.builder()
-                .name(file.getOriginalFilename())
-                .type(file.getContentType())
-                .imageData(ImageUtil.compressImage(file.getBytes()))
-                .build();
-        Recipe recipe = Recipe.builder()
-                .name(name)
-                .description(description)
-                .user(savedUser)
-                .image(image)
-                .build();
-        image.setRecipe(recipe);
-        savedUser.getMyRecipes().add(recipe);
-        recipeRepository.save(recipe);
-        imageRepository.save(image);
-        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
-    }
+//    @Override
+//    public RecipeDTO createRecipe(Long userId, LoginType loginType, String name,
+//                                  String description, MultipartFile file) throws IOException {
+//        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
+//        if (savedUser == null) {
+//            throw new UserNotFoundException();
+//        }
+//        Image image = Image.builder()
+//                .name(file.getOriginalFilename())
+//                .type(file.getContentType())
+//                .imageData(ImageUtil.compressImage(file.getBytes()))
+//                .build();
+//        Recipe recipe = Recipe.builder()
+//                .name(name)
+//                .description(description)
+//                .user(savedUser)
+//                .image(image)
+//                .build();
+//        image.setRecipe(recipe);
+//        savedUser.getMyRecipes().add(recipe);
+//        recipeRepository.save(recipe);
+//        imageRepository.save(image);
+//        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
+//    }
 
     private boolean usernameExists(String username) {
         return userRepository.findByUsername(username) != null;

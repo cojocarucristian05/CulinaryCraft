@@ -24,29 +24,29 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/recipes")
-    public ResponseEntity<RecipeDTO> createRecipe(@RequestParam Long userId,
-                                                  @RequestParam LoginType loginType,
-                                                  @RequestBody Recipe recipe) {
-        return new ResponseEntity<>(
-                userService.createRecipe(userId, loginType, recipe),
-                HttpStatus.CREATED
-        );
-    }
+//    @PostMapping("/recipes")
+//    public ResponseEntity<RecipeDTO> createRecipe(@RequestParam Long userId,
+//                                                  @RequestParam LoginType loginType,
+//                                                  @RequestBody Recipe recipe) {
+//        return new ResponseEntity<>(
+//                userService.createRecipe(userId, loginType, recipe),
+//                HttpStatus.CREATED
+//        );
+//    }
 
-    @PostMapping("/recipes-with-image")
-    public ResponseEntity<RecipeDTO> createRecipe(
-            @RequestParam Long userId,
-            @RequestParam LoginType loginType,
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("image") MultipartFile image) throws IOException {
-
-        return new ResponseEntity<>(
-            userService.createRecipe(userId, loginType, name, description, image),
-            HttpStatus.CREATED
-        );
-    }
+//    @PostMapping("/recipes-with-image")
+//    public ResponseEntity<RecipeDTO> createRecipe(
+//            @RequestParam Long userId,
+//            @RequestParam LoginType loginType,
+//            @RequestParam("name") String name,
+//            @RequestParam("description") String description,
+//            @RequestParam("image") MultipartFile image) throws IOException {
+//
+//        return new ResponseEntity<>(
+//            userService.createRecipe(userId, loginType, name, description, image),
+//            HttpStatus.CREATED
+//        );
+//    }
 
     @Transactional
     @GetMapping("/all")
