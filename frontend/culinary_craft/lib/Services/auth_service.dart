@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:culinary_craft_wireframe/Services/globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -34,9 +35,13 @@ class AuthService {
   }
 
   static void login(BuildContext context, String username, String password) async {
+
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
+
     Map data = {
       "username": username,
-      "password": password,
+      "password": hashPassword.toString(),
     };
 
     var body = jsonEncode(data);

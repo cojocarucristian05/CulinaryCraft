@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
 
 class CreateAccountModel {
   final RegExp emailRegex = RegExp(
@@ -67,6 +70,8 @@ class CreateAccountModel {
   }
 
   void createAccount(BuildContext context, String fullName, String email, String password) {
-    AuthService.register(context, fullName, email, password);
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
+    AuthService.register(context, fullName, email, hashPassword.toString());
   }
 }
