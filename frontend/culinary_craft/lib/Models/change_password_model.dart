@@ -5,34 +5,20 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class ChangePasswordModel  {
-  ///  State fields for stateful widgets in this page.
+class ChangePasswordModel {
+  late TextEditingController passwordController1;
+  late TextEditingController passwordController2;
+  late FocusNode passwordFocusNode1;
+  late FocusNode passwordFocusNode2;
 
-  final unfocusNode = FocusNode();
-  final formKey = GlobalKey<FormState>();
+  String? passwordsMatchError;
 
-  FocusNode? passwordFocusNode1;
-  TextEditingController? passwordController1;
-  String? Function(BuildContext, String?)? passwordController1Validator;
 
-  // State field(s) for Password widget.
-  FocusNode? passwordFocusNode2;
-  TextEditingController? passwordController2;
-  String? Function(BuildContext, String?)? passwordController2Validator;
 
-  @override
-  void initState(BuildContext context) {
-    passwordController1Validator = passwordController1Validator;
-    passwordController2Validator = passwordController2Validator;
-  }
-
-  @override
   void dispose() {
-    unfocusNode.dispose();
-    passwordFocusNode1?.dispose();
-    passwordController1?.dispose();
-
-    passwordFocusNode2?.dispose();
-    passwordController2?.dispose();
+    passwordController1.dispose();
+    passwordController2.dispose();
+    passwordFocusNode1.dispose();
+    passwordFocusNode2.dispose();
   }
 }
