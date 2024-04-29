@@ -1,25 +1,28 @@
+// În ForgotPasswordModel:
 
-import '../Pages/forgot_password_widget.dart' show ForgotPasswordWidget;
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
-class ForgotPasswordModel{
-
+class ForgotPasswordModel {
   TextEditingController? emailAddressController;
   String? Function(BuildContext, String?)? emailAddressControllerValidator;
   final unfocusNode = FocusNode();
 
-  @override
-  void initState(BuildContext context) {
+  // Funcție pentru validarea adresei de email utilizând expresii regulate (regex)
+  String? validateEmailAddress(BuildContext context, String? value) {
+    // Expresia regulată pentru validarea adresei de email
+    final RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    // Verificăm dacă adresa de email respectă expresia regulată
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    } else if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+
+    return null; // Adresa de email este validă
   }
 
-  @override
-  void dispose() {
+  void initState(BuildContext context) {}
 
-  }
-
-/// Action blocks are added here.
-
-/// Additional helper methods are added here.
+  void dispose() {}
 }
+

@@ -21,6 +21,8 @@ class _SignInWidgetState extends State<SignInWidget> {
   bool _isKeyboardVisible = false;
   final bool isWeb = kIsWeb;
   late SignInModel _model;
+  String? _usernameError;
+  String? _passwordError;
 
   @override
   void initState() {
@@ -41,7 +43,6 @@ class _SignInWidgetState extends State<SignInWidget> {
     }
   }
 
-
   @override
   void dispose() {
     if (!isWeb) {
@@ -49,6 +50,23 @@ class _SignInWidgetState extends State<SignInWidget> {
     }
     _model.dispose();
     super.dispose();
+  }
+
+  void _signIn() {
+    setState(() {
+      _usernameError = _model.emailAddressController?.text.isEmpty == true ? 'Please enter your username' : null;
+      _passwordError = _model.passwordController?.text.isEmpty == true ? 'Please enter your password' : null;
+
+      if (_usernameError == null && _passwordError == null) {
+        _model.signIn(context, _model.emailAddressController!.text, _model.passwordController!.text);
+        _usernameError = null;
+        _passwordError = 'Please enter a valid account';
+      }
+    });
+
+    if (_usernameError == null && _passwordError == null) {
+
+    }
   }
 
   @override
@@ -75,6 +93,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Username',
+                    errorText: _usernameError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -86,6 +105,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    errorText: _passwordError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -93,17 +113,7 @@ class _SignInWidgetState extends State<SignInWidget> {
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_model.emailAddressController?.text.isNotEmpty == true &&
-                        _model.passwordController?.text.isNotEmpty == true) {
-                      _model.signIn(context, _model.emailAddressController!.text, _model.passwordController!.text);
-                    } else {
-                      if(_model.emailAddressController?.text.isNotEmpty == true){
-                      }
-                      if( _model.passwordController?.text.isNotEmpty == false){
-                      }
-                    }
-                  },
+                  onPressed: _signIn,
                   child: Text('Sign In', style: TextStyle(color: Colors.white)),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),

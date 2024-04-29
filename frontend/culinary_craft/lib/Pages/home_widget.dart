@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../Components/Ingredient.dart';
+import '../Components/ingredient_widget.dart';
 import '../Components/appbar_widget.dart';
-import '../Models/home_model.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -14,55 +12,29 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  late HomeModel _model;
-
-  // int id = 0;
-  // String username = "";
-  // String email = "";
+  late List<Ingredient> ingredients;
+  List<Ingredient> selectedIngredients = [];
 
   @override
   void initState() {
     super.initState();
-    _model = HomeModel();
-
-    // On page load action.
-    SchedulerBinding.instance!.addPostFrameCallback((_) async {
-      HapticFeedback.mediumImpact();
+    // Inițializăm lista cu ingrediente cu datele de test
+    ingredients = List.generate(10, (index) {
+      return Ingredient(
+        name: 'Egg',
+        imageURL: 'assets/images/egg.png',
+        selected: false,
+      );
     });
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) => setState(() {}));
   }
-
-  @override
-  void dispose() {
-    _model.dispose();
-
-    super.dispose();
-  }
-
-  void loadData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    int id = prefs.getInt('id') ?? 0;
-    String username = prefs.getString('username') ?? "";
-    String email = prefs.getString('email') ?? "";
-    printData(id, username, email);
-  }
-
-  void printData(int id, String username, String email) {
-    print("Id: ${id}");
-    print("Username: ${username}");
-    print("Email: ${email}");
-  }
-
-  // void
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // Setează culoarea fundalului pentru AppBar la alb
-        elevation: 0, // Elimină umbra AppBar-ului
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
       bottomNavigationBar: CustomAppbarWidget(
         homeRoute: '/home',
@@ -71,10 +43,11 @@ class _HomeWidgetState extends State<HomeWidget> {
       body: SafeArea(
         top: true,
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 10),
               Text(
                 'Craft recipes',
                 style: GoogleFonts.inter(
@@ -91,13 +64,63 @@ class _HomeWidgetState extends State<HomeWidget> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 5),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: (ingredients.length / 2).ceil(),
+                  itemBuilder: (BuildContext context, int index) {
+                    final int firstIndex = index * 2;
+                    final int secondIndex =
+                    firstIndex + 1 < ingredients.length ? firstIndex + 1 : -1;
+                    return Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: secondIndex != -1
+                                  ? IngredientWidget(
+                                name: ingredients[firstIndex].name,
+                                imageURL: ingredients[firstIndex].imageURL,
+                                selected: ingredients[firstIndex].selected,
+                                onTap: () {
+                                  setState(() {
+                                    toggleIngredientSelection(ingredients[firstIndex]);
+                                  });
+                                },
+                              )
+                                  : SizedBox(),
+                            ),
+                            SizedBox(width: 5),
+                            Expanded(
+                              child: secondIndex != -1
+                                  ? IngredientWidget(
+                                name: ingredients[secondIndex].name,
+                                imageURL: ingredients[secondIndex].imageURL,
+                                selected: ingredients[secondIndex].selected,
+                                onTap: () {
+                                  setState(() {
+                                    toggleIngredientSelection(ingredients[secondIndex]);
+                                  });
+                                },
+                              )
+                                  : SizedBox(),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 5), // Spatiu intre randuri
+                      ],
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    loadData();
-                    // Navigator.pushNamed(context, 'RecipePage');
+                    // Afiseaza ingredientele selectate
+                    print(selectedIngredients);
+                    Navigator.of(context).pushNamed('/view_recipes');
                   },
                   child: Text(
                     'Search Recipes',
@@ -123,5 +146,20 @@ class _HomeWidgetState extends State<HomeWidget> {
         ),
       ),
     );
+  }
+
+  void toggleIngredientSelection(Ingredient ingredient) {
+    setState(() {
+      if (selectedIngredients.contains(ingredient)) {
+        selectedIngredients.remove(ingredient);
+        ingredient.selected = false;
+      } else {
+        selectedIngredients.add(ingredient);
+        ingredient.selected = true;
+      }
+    for(Ingredient ing in selectedIngredients){
+      print(ing.name);
+    }
+    });
   }
 }
