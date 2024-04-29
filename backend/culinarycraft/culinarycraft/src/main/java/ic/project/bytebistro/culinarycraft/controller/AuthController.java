@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("${apiVersion}")
 public class AuthController {
 
     private final UserService userService;
