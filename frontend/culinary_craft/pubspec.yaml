@@ -25,6 +25,7 @@ dependencies:
   flutter_facebook_auth: '^3.5.0'
   shared_preferences: ^2.2.2
   pin_code_fields: 8.0.1
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_launcher_icons: 0.13.1

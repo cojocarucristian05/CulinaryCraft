@@ -1,13 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-import '../Models/create_account_model.dart'; // Importăm modelul de creare a contului
-export '../Models/create_account_model.dart';
+import '../Models/create_account_model.dart';
 
 class CreateAccountWidget extends StatefulWidget {
   const CreateAccountWidget({Key? key}) : super(key: key);
@@ -17,38 +9,42 @@ class CreateAccountWidget extends StatefulWidget {
 }
 
 class _CreateAccountWidgetState extends State<CreateAccountWidget> {
-  late StreamSubscription<bool> _keyboardVisibilitySubscription;
-  bool _isKeyboardVisible = false;
-  final bool isWeb = kIsWeb;
-  late CreateAccountModel _model; // Schimbăm modelul asociat
+  late CreateAccountModel _model;
+  String? _emailError;
+  String? _passwordError;
+  String? _usernameError;
 
   @override
   void initState() {
     super.initState();
-    _model = CreateAccountModel(); // Inițializăm modelul de creare a contului
+    _model = CreateAccountModel();
     _model.initState(context);
 
-    _model.fullNameController = TextEditingController(); // Inițializăm controllerul pentru nume
-    _model.emailAddressController = TextEditingController(); // Inițializăm controllerul de email
-    _model.passwordController = TextEditingController(); // Inițializăm controllerul de parolă
-
-    if (!isWeb) {
-      _keyboardVisibilitySubscription =
-          KeyboardVisibilityController().onChange.listen((bool visible) {
-            setState(() {
-              _isKeyboardVisible = visible;
-            });
-          });
-    }
+    _model.usernameController = TextEditingController();
+    _model.emailAddressController = TextEditingController();
+    _model.passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    if (!isWeb) {
-      _keyboardVisibilitySubscription.cancel();
-    }
     _model.dispose();
     super.dispose();
+  }
+
+  void _createAccount() {
+    setState(() {
+      _emailError = _model.emailAddressControllerValidator!(context, _model.emailAddressController!.text);
+      _passwordError = _model.passwordControllerValidator!(context, _model.passwordController!.text);
+      _usernameError = _model.usernameControllerValidator!(context, _model.usernameController!.text);
+      if (_emailError == null && _passwordError == null && _usernameError == null) {
+        _model.createAccount(
+          context,
+          _model.usernameController!.text,
+          _model.emailAddressController!.text,
+          _model.passwordController!.text,
+        );
+      }
+    });
   }
 
   @override
@@ -63,18 +59,19 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Create Account', // Schimbăm textul pentru pagina de creare a contului
-                  style: GoogleFonts.roboto(
+                  'Create Account',
+                  style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 30),
                 TextField(
-                  controller: _model.fullNameController, // Schimbăm controllerul pentru nume
+                  controller: _model.usernameController,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    labelText: 'Username', // Schimbăm eticheta câmpului
+                    labelText: 'Username',
+                    errorText: _usernameError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -86,6 +83,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    errorText: _emailError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -94,9 +92,10 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                 SizedBox(height: 16),
                 TextField(
                   controller: _model.passwordController,
-                  obscureText: !_model.passwordVisibility, // Schimbăm vizibilitatea parolei conform modelului
+                  obscureText: !_model.passwordVisibility,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    errorText: _passwordError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -114,54 +113,39 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_model.fullNameController?.text.isNotEmpty == true &&
-                        _model.emailAddressController?.text.isNotEmpty == true &&
-                        _model.passwordController?.text.isNotEmpty == true) {
-                      _model.createAccount(context, _model.fullNameController!.text,
-                          _model.emailAddressController!.text, _model.passwordController!.text); // Apelăm metoda de creare a contului
-                    } else {
-                      // Tratează cazurile în care unul dintre câmpuri este necompletat
-                    }
-                  },
-                  child: Text(
-                    'Create Account',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18, // Mărim scrisul butonului
+                  onPressed: _createAccount,
+                  child: Text('Create Account', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 50),
+                    backgroundColor: Color(0xFF0077B6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
-                  style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
-                    backgroundColor: MaterialStateProperty.all(Color(0xFF0077B6)),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    )),
-                  ),
                 ),
-                SizedBox(height: 10), // Adăugăm spațiu între buton și textul de sub buton
+                SizedBox(height: 10),
                 Text(
-                  'By clicking "Create Account" you agree to CulinaryCraft\'s Terms of Use', // Adăugăm textul specificat
-                  textAlign: TextAlign.center, // Afișăm textul în centru
+                  'By clicking "Create Account" you agree to CulinaryCraft\'s Terms of Use',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
                     color: Colors.grey,
                   ),
                 ),
-                SizedBox(height: 20), // Mărim spațiul sub text
+                SizedBox(height: 20),
                 InkWell(
                   onTap: () {
                     Navigator.of(context).pushNamed('/signin');
                   },
                   child: Text(
-                    'I already have an account', // Schimbăm textul pentru link-ul către pagina de sign-in
-                    style: GoogleFonts.roboto(
+                    'I already have an account',
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.blue,
                     ),
                   ),
                 ),
-                SizedBox(height: _isKeyboardVisible ? 12 : 24), // Muta putin mai jos cand tastatura e vizibila
+                SizedBox(height: 12),
               ],
             ),
           ),

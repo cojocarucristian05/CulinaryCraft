@@ -76,7 +76,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                     icon: Icons.logout,
                     text: 'Log out',
                     onTap: () {
-                      Navigator.of(context).pushNamed('/start');
+                      Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
                     },
                   ),
                 ],

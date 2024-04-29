@@ -1,6 +1,6 @@
-import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../Models/forgot_password_model.dart';
+import '../Services/auth_service.dart';
 
 class ForgotPasswordWidget extends StatefulWidget {
   const ForgotPasswordWidget({Key? key}) : super(key: key);
@@ -11,18 +11,14 @@ class ForgotPasswordWidget extends StatefulWidget {
 
 class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
   late ForgotPasswordModel _model;
-
-  // Adăugați inițializarea aici
-  _ForgotPasswordWidgetState() {
-    _model = ForgotPasswordModel();
-    _model.emailAddressController = TextEditingController();
-  }
+  String? _emailError;
 
   @override
   void initState() {
     super.initState();
-
-    // Eliminați apelurile Firebase log.
+    _model = ForgotPasswordModel();
+    _model.emailAddressController = TextEditingController();
+    _model.emailAddressControllerValidator = _model.validateEmailAddress;
   }
 
   @override
@@ -31,94 +27,78 @@ class _ForgotPasswordWidgetState extends State<ForgotPasswordWidget> {
     super.dispose();
   }
 
+  void _resetPassword() {
+    setState(() {
+      _emailError = _model.emailAddressControllerValidator!(context, _model.emailAddressController!.text);
+    });
+    if (_emailError == null) {
+      AuthService.forgotPassword(context, _model.emailAddressController!.text);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0, // Eliminăm umbra AppBar-ului
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/edit_profile');
-            },
-          ),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          color: Colors.black,
         ),
-        body: SafeArea(
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.fromLTRB(30, 0, 30, 30),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Aliniați textul la stânga
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Forgot Password',
                   style: TextStyle(
-                    fontSize: 34,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto', // Utilizăm fontul Roboto
                   ),
                 ),
-
-                SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 30),
+                Text(
                   "We'll send you an email to reset your password.",
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
-                    fontFamily: 'Roboto', // Utilizăm fontul Roboto
                   ),
                 ),
-                const SizedBox(height: 14),
-                TextField(
+                SizedBox(height: 24),
+                TextFormField(
                   controller: _model.emailAddressController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    errorText: _emailError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
-                const SizedBox(height: 24),
-                // Butonul de resetare a parolei
+                SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () async {
-                    if (_model.emailAddressController != null) {
-                      String emailAddress = _model.emailAddressController!.text;
-                      print(emailAddress);
-                      // Adăugați aici logica pentru resetarea parolei
-                      AuthService.forgotPassword(context, _model.emailAddressController!.text);
-                    } else {
-                      print("Email address controller is null.");
-                    }
-                  },
+                  onPressed: _resetPassword,
+                  child: Text('Reset Password', style: TextStyle(color: Colors.white)),
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF0077B6)),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 0)),
-                  ),
-                  child: const Text(
-                    'Reset Password',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Roboto', // Utilizăm fontul Roboto
-                    ),
+                    minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+                    backgroundColor: MaterialStateProperty.all(Color(0xFF0077B6)),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    )),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
             ),
           ),

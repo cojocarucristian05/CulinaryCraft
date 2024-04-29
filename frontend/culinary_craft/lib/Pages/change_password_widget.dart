@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Models/change_password_model.dart';
 
-
 class ChangePasswordWidget extends StatefulWidget {
   const ChangePasswordWidget({Key? key}) : super(key: key);
 
@@ -11,6 +10,8 @@ class ChangePasswordWidget extends StatefulWidget {
 
 class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
   late ChangePasswordModel _model;
+  String? _passwordError1;
+  String? _passwordError2;
 
   @override
   void initState() {
@@ -31,101 +32,84 @@ class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
     super.dispose();
   }
 
+  void _changePassword() {
+    setState(() {
+      _passwordError1 = _model.passwordController1.text.isEmpty ? 'Please enter a new password' : null;
+      _passwordError2 = _model.passwordController2.text.isEmpty ? 'Please confirm your new password' : null;
+
+      if (_passwordError1 == null && _passwordError2 == null) {
+        if (_model.passwordController1.text != _model.passwordController2.text) {
+          _passwordError2 = 'Passwords do not match';
+        } else {
+          // Perform password change logic
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // Eliminăm umbra AppBar-ului
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pushNamed('/edit_profile');
+            Navigator.of(context).pop();
           },
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField(
+            Text(
+              'Change Password',
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 30),
+            TextField(
               controller: _model.passwordController1,
               focusNode: _model.passwordFocusNode1,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'New Password',
+                errorText: _passwordError1,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
+            SizedBox(height: 16),
+            TextField(
               controller: _model.passwordController2,
               focusNode: _model.passwordFocusNode2,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
+                errorText: _passwordError2,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () async {
-                if (_model.passwordController1?.text.isNotEmpty == true &&
-                    _model.passwordController2?.text.isNotEmpty == true) {
-                  if (_model.passwordController1!.text == _model.passwordController2!.text) {
-                    // Passwords match
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Success'),
-                        content: Text('Password changed successfully!'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                              Navigator.of(context).pushReplacementNamed('/profile'); // Redirect to '/profile'
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    // Passwords don't match
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Error'),
-                        content: Text('Passwords do not match!'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                } else {
-                  // Handle the case when one or both fields are empty
-                }
-              },
-              child: const Text('Change Password', style: TextStyle(color: Colors.white)),
+              onPressed: _changePassword,
+              child: Text('Change Password', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50), backgroundColor: const Color(0xFF0077B6),
+                minimumSize: Size(double.infinity, 50),
+                backgroundColor: Color(0xFF0077B6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
             ),
-
           ],
         ),
       ),
