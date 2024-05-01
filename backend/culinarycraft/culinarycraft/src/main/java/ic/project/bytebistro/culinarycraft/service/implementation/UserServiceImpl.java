@@ -1,17 +1,16 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
-import ic.project.bytebistro.culinarycraft.exception.InvalidSecurityCodeException;
-import ic.project.bytebistro.culinarycraft.exception.UserAlreadyExistException;
-import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
-import ic.project.bytebistro.culinarycraft.exception.UserUnauthorizedException;
+import ic.project.bytebistro.culinarycraft.exception.*;
 import ic.project.bytebistro.culinarycraft.repository.IngredientRepository;
 import ic.project.bytebistro.culinarycraft.repository.RecipeRepository;
 import ic.project.bytebistro.culinarycraft.repository.UserRepository;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserUpdateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.RegisterResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
@@ -31,35 +30,45 @@ import static ic.project.bytebistro.culinarycraft.utils.PasswordGenerator.hashPa
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RecipeRepository recipeRepository;
-    private final IngredientRepository ingredientRepository;
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(UserRepository userRepository,
-                           RecipeRepository recipeRepository,
-                           IngredientRepository ingredientRepository,
                            ModelMapper modelMapper) {
         this.userRepository = userRepository;
-        this.recipeRepository = recipeRepository;
-        this.ingredientRepository = ingredientRepository;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public UserResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO) {
+    public RegisterResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO) {
         User savedUser = userRepository.findByEmailAndLoginType(userRegisterRequestDTO.getEmail(), LoginType.USERNAME_PASSWORD);
+        RegisterResponseDTO registerResponseDTO;
         if (savedUser != null ) {
-            throw new UserAlreadyExistException();
+            if (savedUser.getIsActive()) {
+                throw new UserAlreadyExistException();
+            } else {
+                savedUser.setUsername(userRegisterRequestDTO.getUsername());
+                savedUser.setPassword(userRegisterRequestDTO.getPassword());
+                savedUser.setIsActive(true);
+                registerResponseDTO = modelMapper.map(userRepository.save(savedUser), RegisterResponseDTO.class);
+                registerResponseDTO.setIsReactivated(true);
+                return registerResponseDTO;
+            }
         }
         User user = modelMapper.map(userRegisterRequestDTO, User.class);
         user.setLoginType(LoginType.USERNAME_PASSWORD);
-        return modelMapper.map(userRepository.save(user), UserResponseDTO.class);
+        user.setIsActive(true);
+        registerResponseDTO = modelMapper.map(userRepository.save(user), RegisterResponseDTO.class);
+        registerResponseDTO.setIsReactivated(false);
+        return registerResponseDTO;
     }
 
     @Override
     public UserResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
-        User user = userRepository.findByUsername(userLoginRequestDTO.getUsername());
+        User user = userRepository.findByUsernameAndLoginType(userLoginRequestDTO.getUsername(), LoginType.USERNAME_PASSWORD);
         if (user != null) {
+            if (!user.getIsActive()) {
+                throw new UserInactiveException();
+            }
             if (user.getPassword().equals(userLoginRequestDTO.getPassword())) {
                 return modelMapper.map(user, UserResponseDTO.class);
             } else {
@@ -121,18 +130,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<RecipeDTO> getMyRecipes(Long userId, LoginType loginType) {
-        User savedUsed = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUsed == null) {
-            throw new UserNotFoundException();
+    public UserResponseDTO updateProfile(Long id, UserUpdateDTO userUpdateDTO) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (userUpdateDTO.getUsername() != null) {
+            user.setUsername(userUpdateDTO.getUsername());
         }
-        Type listType = new TypeToken<List<RecipeDTO>>(){}.getType();
-        return modelMapper.map(savedUsed.getMyRecipes(), listType);
+        return modelMapper.map(userRepository.save(user), UserResponseDTO.class);
     }
 
-    private boolean usernameExists(String username) {
-        return userRepository.findByUsername(username) != null;
+    @Override
+    public void deactivateAccount(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        user.setIsActive(false);
+        userRepository.save(user);
     }
 
-    private boolean emailExists(String email) { return userRepository.findByEmail(email) != null; }
+    @Override
+    public void deleteAccount(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        userRepository.delete(user);
+    }
+
+    @Override
+    public String getEmail(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return user.getEmail();
+    }
+
+    @Override
+    public String getUsername(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return user.getUsername();
+    }
+
 }

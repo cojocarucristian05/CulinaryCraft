@@ -4,6 +4,8 @@ import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRe
 
 public interface MailService {
      void sendWelcomeEmail(UserRegisterRequestDTO userRegisterRequestDTO);
-
+     void sendWelcomeBackEmail(UserRegisterRequestDTO userRegisterRequestDTO);
      void sendResetPasswordCode(String email, Long code);
+     void sendDeactivateAccountEmail(String email, String username);
+     void sendDeleteAccountEmail(String email, String username);
 }

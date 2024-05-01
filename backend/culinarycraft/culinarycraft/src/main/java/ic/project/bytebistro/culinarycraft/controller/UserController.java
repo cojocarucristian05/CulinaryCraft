@@ -1,6 +1,8 @@
 package ic.project.bytebistro.culinarycraft.controller;
 
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserUpdateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
 import ic.project.bytebistro.culinarycraft.service.UserService;
@@ -24,34 +26,9 @@ public class UserController {
         this.userService = userService;
     }
 
-//    @PostMapping("/recipes")
-//    public ResponseEntity<RecipeDTO> createRecipe(@RequestParam Long userId,
-//                                                  @RequestParam LoginType loginType,
-//                                                  @RequestBody Recipe recipe) {
-//        return new ResponseEntity<>(
-//                userService.createRecipe(userId, loginType, recipe),
-//                HttpStatus.CREATED
-//        );
-//    }
-
-//    @PostMapping("/recipes-with-image")
-//    public ResponseEntity<RecipeDTO> createRecipe(
-//            @RequestParam Long userId,
-//            @RequestParam LoginType loginType,
-//            @RequestParam("name") String name,
-//            @RequestParam("description") String description,
-//            @RequestParam("image") MultipartFile image) throws IOException {
-//
-//        return new ResponseEntity<>(
-//            userService.createRecipe(userId, loginType, name, description, image),
-//            HttpStatus.CREATED
-//        );
-//    }
-
-    @Transactional
-    @GetMapping("/all")
-    public ResponseEntity<List<RecipeDTO>> getRecipes(@RequestParam Long userId,
-                                                      @RequestParam LoginType loginType) {
-        return new ResponseEntity<>(userService.getMyRecipes(userId, loginType), HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateProfile(@PathVariable Long id,
+                                                         @RequestBody UserUpdateDTO userUpdateDTO) {
+        return new ResponseEntity<>(userService.updateProfile(id, userUpdateDTO), HttpStatus.OK);
     }
 }

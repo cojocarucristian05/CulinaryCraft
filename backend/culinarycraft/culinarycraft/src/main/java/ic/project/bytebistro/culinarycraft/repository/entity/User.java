@@ -34,9 +34,12 @@ public class User {
     private Long code;
 
     @Column(name = "login_type")
-    LoginType loginType;
+    private LoginType loginType;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @Column(name = "active")
+    private Boolean isActive;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private List<Recipe> myRecipes;
 
 }

@@ -1,5 +1,7 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
+import ic.project.bytebistro.culinarycraft.exception.RecipeNotFoundException;
+import ic.project.bytebistro.culinarycraft.exception.UserInactiveException;
 import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
 import ic.project.bytebistro.culinarycraft.repository.RecipeRepository;
 import ic.project.bytebistro.culinarycraft.repository.UserRepository;
@@ -37,12 +39,15 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public RecipeDTO getRecipeById(Long id) {
-        return modelMapper.map(recipeRepository.findById(id).orElseThrow(RuntimeException::new), RecipeDTO.class);
+        return modelMapper.map(recipeRepository.findById(id).orElseThrow(RecipeNotFoundException::new), RecipeDTO.class);
     }
 
     @Override
     public List<RecipeDTO> getAllRecipeByUserId(Long id) {
-        User user = userRepository.findById(id).orElseThrow(RuntimeException::new);
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (!user.getIsActive()) {
+            throw new UserInactiveException();
+        }
         Type listType = new TypeToken<List<RecipeDTO>>(){}.getType();
         return modelMapper.map(user.getMyRecipes(), listType);
     }
@@ -50,6 +55,9 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public Page<RecipeDTO> getAllRecipesByUser(Long id, int pageNumber, int pageSize) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (!user.getIsActive()) {
+            throw new UserInactiveException();
+        }
         Page<Recipe> recipes = recipeRepository
                 .findAllByUser(user, PageRequest.of(pageNumber, pageSize, Sort.unsorted()));
         List<RecipeDTO> recipeDTOS = mapRecipes(recipes);

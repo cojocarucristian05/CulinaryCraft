@@ -4,6 +4,7 @@ import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginReque
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.RegisterResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.service.MailService;
@@ -28,9 +29,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> create(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
-        UserResponseDTO savedUser = userService.create(userRegisterRequestDTO);
-        CompletableFuture.runAsync(() -> mailService.sendWelcomeEmail(userRegisterRequestDTO));
+    public ResponseEntity<RegisterResponseDTO> create(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
+        RegisterResponseDTO savedUser = userService.create(userRegisterRequestDTO);
+        if (savedUser.getIsReactivated()) {
+            CompletableFuture.runAsync(() -> mailService.sendWelcomeBackEmail(userRegisterRequestDTO));
+        } else {
+            CompletableFuture.runAsync(() -> mailService.sendWelcomeEmail(userRegisterRequestDTO));
+        }
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
@@ -66,6 +71,22 @@ public class AuthController {
     @PutMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestParam Long userId, @RequestBody String newPassword) {
         userService.changePassword(userId, newPassword);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/deactivate-account/{id}")
+    public ResponseEntity<Void> deactivateAccount(@PathVariable Long id) {
+        userService.deactivateAccount(id);
+        CompletableFuture.runAsync(() -> mailService.sendDeactivateAccountEmail(userService.getEmail(id), userService.getUsername(id)));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-account/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+        String email = userService.getEmail(id);
+        String username = userService.getUsername(id);
+        userService.deleteAccount(id);
+        CompletableFuture.runAsync(() -> mailService.sendDeleteAccountEmail(email, username));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
