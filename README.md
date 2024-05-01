@@ -11,5 +11,5 @@ Whether you're looking for a quick and simple recipe for dinner or a sophisticat
 
 **Wireframe:**<br />
 https://www.figma.com/file/dJX0q4NVfBOypzLAtDTHSB/CulinaryCraft_Wireframe?type=whiteboard&node-id=0-1&t=oLiMFasERmTxyomb-0<br /><br />
-**Entity Relationship Diagram (IN PROGRESS)**<br />
+**Entity Relationship Diagram**<br />
 https://lucid.app/lucidchart/21485875-b125-4119-88ea-dbfa04aa5fb8/edit?invitationId=inv_d551c768-475c-4628-bcfa-e63f0e457c1b
