@@ -24,18 +24,21 @@ public class Recipe {
     @Column(name = "recipe_name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 5000)
     private String description;
 
-    @ManyToOne
+    @Column(name = "url_image")
+    private String urlImage;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_id", referencedColumnName = "image_id")
-    private Image image;
-
-    @OneToMany(mappedBy = "recipe")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "recipe_ingredients",
+            joinColumns = @JoinColumn(name = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
     private List<Ingredient> ingredients;
 
 }

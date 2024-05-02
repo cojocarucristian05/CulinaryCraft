@@ -46,4 +46,14 @@ public class GlobalExceptionController {
         return new ResponseEntity<>(imageNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(value = UserInactiveException.class)
+    public ResponseEntity<String> handleUserInactiveException(UserInactiveException userInactiveException) {
+        return new ResponseEntity<>(userInactiveException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = RecipeNotFoundException.class)
+    public ResponseEntity<String> handleRecipeNotFoundException(RecipeNotFoundException recipeNotFoundException) {
+        return new ResponseEntity<>(recipeNotFoundException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

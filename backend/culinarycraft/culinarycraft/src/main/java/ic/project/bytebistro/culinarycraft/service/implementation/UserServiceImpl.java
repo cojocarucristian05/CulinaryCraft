@@ -1,33 +1,24 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
-import ic.project.bytebistro.culinarycraft.exception.InvalidSecurityCodeException;
-import ic.project.bytebistro.culinarycraft.exception.UserAlreadyExistException;
-import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
-import ic.project.bytebistro.culinarycraft.exception.UserUnauthorizedException;
-import ic.project.bytebistro.culinarycraft.repository.ImageRepository;
+import ic.project.bytebistro.culinarycraft.exception.*;
 import ic.project.bytebistro.culinarycraft.repository.IngredientRepository;
 import ic.project.bytebistro.culinarycraft.repository.RecipeRepository;
 import ic.project.bytebistro.culinarycraft.repository.UserRepository;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserUpdateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
-import ic.project.bytebistro.culinarycraft.repository.dto.response.ImageDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.RegisterResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
-import ic.project.bytebistro.culinarycraft.repository.entity.Image;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
-import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.UserService;
-import ic.project.bytebistro.culinarycraft.utils.ImageUtil;
-import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Random;
@@ -39,37 +30,45 @@ import static ic.project.bytebistro.culinarycraft.utils.PasswordGenerator.hashPa
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RecipeRepository recipeRepository;
-    private final IngredientRepository ingredientRepository;
-    private final ImageRepository imageRepository;
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(UserRepository userRepository,
-                           RecipeRepository recipeRepository,
-                           IngredientRepository ingredientRepository,
-                           ImageRepository imageRepository, ModelMapper modelMapper) {
+                           ModelMapper modelMapper) {
         this.userRepository = userRepository;
-        this.recipeRepository = recipeRepository;
-        this.ingredientRepository = ingredientRepository;
-        this.imageRepository = imageRepository;
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public UserResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO) {
+    public RegisterResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO) {
         User savedUser = userRepository.findByEmailAndLoginType(userRegisterRequestDTO.getEmail(), LoginType.USERNAME_PASSWORD);
+        RegisterResponseDTO registerResponseDTO;
         if (savedUser != null ) {
-            throw new UserAlreadyExistException();
+            if (savedUser.getIsActive()) {
+                throw new UserAlreadyExistException();
+            } else {
+                savedUser.setUsername(userRegisterRequestDTO.getUsername());
+                savedUser.setPassword(userRegisterRequestDTO.getPassword());
+                savedUser.setIsActive(true);
+                registerResponseDTO = modelMapper.map(userRepository.save(savedUser), RegisterResponseDTO.class);
+                registerResponseDTO.setIsReactivated(true);
+                return registerResponseDTO;
+            }
         }
         User user = modelMapper.map(userRegisterRequestDTO, User.class);
         user.setLoginType(LoginType.USERNAME_PASSWORD);
-        return modelMapper.map(userRepository.save(user), UserResponseDTO.class);
+        user.setIsActive(true);
+        registerResponseDTO = modelMapper.map(userRepository.save(user), RegisterResponseDTO.class);
+        registerResponseDTO.setIsReactivated(false);
+        return registerResponseDTO;
     }
 
     @Override
     public UserResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
-        User user = userRepository.findByUsername(userLoginRequestDTO.getUsername());
+        User user = userRepository.findByUsernameAndLoginType(userLoginRequestDTO.getUsername(), LoginType.USERNAME_PASSWORD);
         if (user != null) {
+            if (!user.getIsActive()) {
+                throw new UserInactiveException();
+            }
             if (user.getPassword().equals(userLoginRequestDTO.getPassword())) {
                 return modelMapper.map(user, UserResponseDTO.class);
             } else {
@@ -81,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ForgotPasswordDTO forgotPassword(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailAndLoginType(email, LoginType.USERNAME_PASSWORD);
         if (user == null) {
             throw new UserNotFoundException();
         }
@@ -131,58 +130,37 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe) {
-        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUser == null) {
-            throw new UserNotFoundException();
+    public UserResponseDTO updateProfile(Long id, UserUpdateDTO userUpdateDTO) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        if (userUpdateDTO.getUsername() != null) {
+            user.setUsername(userUpdateDTO.getUsername());
         }
-        savedUser.getMyRecipes().add(recipe);
-        recipe.getIngredients()
-                .forEach(ingredient -> ingredient.setRecipe(recipe));
-        recipe.setUser(savedUser);
-        recipeRepository.save(recipe);
-        ingredientRepository.saveAll(recipe.getIngredients());
-        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
+        return modelMapper.map(userRepository.save(user), UserResponseDTO.class);
     }
 
     @Override
-    public List<RecipeDTO> getMyRecipes(Long userId, LoginType loginType) {
-        User savedUsed = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUsed == null) {
-            throw new UserNotFoundException();
-        }
-        Type listType = new TypeToken<List<RecipeDTO>>(){}.getType();
-        return modelMapper.map(savedUsed.getMyRecipes(), listType);
+    public void deactivateAccount(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        user.setIsActive(false);
+        userRepository.save(user);
     }
 
     @Override
-    public RecipeDTO createRecipe(Long userId, LoginType loginType, String name,
-                                  String description, MultipartFile file) throws IOException {
-        User savedUser = userRepository.findByIdAndLoginType(userId, loginType);
-        if (savedUser == null) {
-            throw new UserNotFoundException();
-        }
-        Image image = Image.builder()
-                .name(file.getOriginalFilename())
-                .type(file.getContentType())
-                .imageData(ImageUtil.compressImage(file.getBytes()))
-                .build();
-        Recipe recipe = Recipe.builder()
-                .name(name)
-                .description(description)
-                .user(savedUser)
-                .image(image)
-                .build();
-        image.setRecipe(recipe);
-        savedUser.getMyRecipes().add(recipe);
-        recipeRepository.save(recipe);
-        imageRepository.save(image);
-        return modelMapper.map(recipeRepository.save(recipe), RecipeDTO.class);
+    public void deleteAccount(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        userRepository.delete(user);
     }
 
-    private boolean usernameExists(String username) {
-        return userRepository.findByUsername(username) != null;
+    @Override
+    public String getEmail(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return user.getEmail();
     }
 
-    private boolean emailExists(String email) { return userRepository.findByEmail(email) != null; }
+    @Override
+    public String getUsername(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return user.getUsername();
+    }
+
 }

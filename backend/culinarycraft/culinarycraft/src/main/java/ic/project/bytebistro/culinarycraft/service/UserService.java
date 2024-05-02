@@ -3,18 +3,14 @@ package ic.project.bytebistro.culinarycraft.service;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserLoginWithGoogleOrFacebookDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.UserRegisterRequestDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.UserUpdateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ForgotPasswordDTO;
-import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.RegisterResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
-import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 public interface UserService {
-    UserResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO);
+    RegisterResponseDTO create(UserRegisterRequestDTO userRegisterRequestDTO);
 
     UserResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
 
@@ -26,9 +22,13 @@ public interface UserService {
 
     void changePassword(Long userId, String newPassword);
 
-    RecipeDTO createRecipe(Long userId, LoginType loginType, Recipe recipe);
+    UserResponseDTO updateProfile(Long id, UserUpdateDTO userUpdateDTO);
 
-    List<RecipeDTO> getMyRecipes(Long userId, LoginType loginType);
+    void deactivateAccount(Long id);
 
-    RecipeDTO createRecipe(Long userId, LoginType loginType, String name, String description, MultipartFile file) throws IOException;
+    String getEmail(Long id);
+
+    String getUsername(Long id);
+
+    void deleteAccount(Long id);
 }
