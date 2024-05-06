@@ -33,11 +33,7 @@ class RecipeCard extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            // Descrierea rețetei
-            Text(
-              recipe.description,
-              textAlign: TextAlign.center,
-            ),
+
           ],
         ),
       ),

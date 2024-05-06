@@ -139,7 +139,13 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                 // Butonul de ștergere a contului
                 ElevatedButton(
                   onPressed: () async {
-                    // Adăugați aici logica pentru ștergerea contului
+                    // Adăugați aici logica pentru afișarea dialogului de confirmare
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DeleteAccountConfirmationDialog();
+                      },
+                    );
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFFD4D4)),
@@ -170,3 +176,77 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
     );
   }
 }
+
+
+
+class DeleteAccountConfirmationDialog extends StatelessWidget {
+  const DeleteAccountConfirmationDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Delete Account"),
+      content: Text("Are you sure you want to delete your account?"),
+      contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+      actionsPadding: EdgeInsets.fromLTRB(24, 0, 24, 20),
+      actions: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFFD4D4)),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                  EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+              child: const Text(
+                'Deactivate Account',
+                style: TextStyle(
+                  color: Color(0xFFB74D4D),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Roboto',
+                ),
+              ),
+            ),
+            SizedBox(height: 10), // Spațiu între butoane
+            ElevatedButton(
+              onPressed: () {
+                // Adăugați aici logica pentru ștergerea efectivă a contului
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFFD4D4)),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                  EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+              child: const Text(
+                'Delete Account',
+                style: TextStyle(
+                  color: Color(0xFFB74D4D),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Roboto',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
