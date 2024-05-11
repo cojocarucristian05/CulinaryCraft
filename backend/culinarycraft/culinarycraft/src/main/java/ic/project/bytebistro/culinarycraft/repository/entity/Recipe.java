@@ -41,4 +41,7 @@ public class Recipe {
             inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
     private List<Ingredient> ingredients;
 
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "favouritesRecipes")
+    private List<User> likes;
+
 }

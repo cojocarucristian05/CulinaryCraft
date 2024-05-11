@@ -89,6 +89,7 @@ public class DataLoaderUtils implements CommandLineRunner {
                 .username(username)
                 .email(mail)
                 .password(hashPassword(password))
+                .isActive(true)
                 .loginType(LoginType.USERNAME_PASSWORD)
                 .build();
         userRepository.save(user);

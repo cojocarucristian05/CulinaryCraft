@@ -1,5 +1,6 @@
 package ic.project.bytebistro.culinarycraft.controller;
 
+import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.service.RecipeService;
 import org.springframework.data.domain.Page;
@@ -35,4 +36,23 @@ public class RecipeController {
                                                         @RequestParam int pageSize) {
         return new ResponseEntity<>(recipeService.getAllRecipes(pageNumber, pageSize), HttpStatus.OK);
     }
+
+    @PostMapping("/user/{id}")
+    public ResponseEntity<RecipeDTO> craftRecipe(@PathVariable Long id, @RequestBody RecipeCreateDTO recipeCreateDTO) {
+        return new ResponseEntity<>(recipeService.craftRecipe(id, recipeCreateDTO), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/user-id={userId}/add-to-favourite/recipe-id={recipeId}")
+    public ResponseEntity<Boolean> addToFavourite(@PathVariable Long userId,
+                                           @PathVariable Long recipeId) {
+        return new ResponseEntity<>(recipeService.addToFavourites(userId, recipeId), HttpStatus.OK);
+    }
+
+    @GetMapping("/favourites/user-id={userId}")
+    public ResponseEntity<Page<RecipeDTO>> getFavouritesRecipeByUserId(@PathVariable Long userId,
+                                                                       @RequestParam int pageNumber,
+                                                                       @RequestParam int pageSize) {
+        return new ResponseEntity<>(recipeService.getFavouritesRecipes(userId, pageNumber, pageSize), HttpStatus.OK);
+    }
+
 }

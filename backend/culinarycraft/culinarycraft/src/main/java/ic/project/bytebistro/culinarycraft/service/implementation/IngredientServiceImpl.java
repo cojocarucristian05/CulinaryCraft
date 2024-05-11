@@ -30,7 +30,7 @@ public class IngredientServiceImpl implements IngredientService {
         ingredientRepository
                 .findAll(PageRequest.of(pageNumber, pageSize, Sort.unsorted()))
                 .stream()
-                .map(ingredient -> new IngredientDTO(ingredient.getName(), ingredient.getUrlImage()))
+                .map(ingredient -> new IngredientDTO(ingredient.getId(), ingredient.getName(), ingredient.getUrlImage()))
                 .forEach(ingredientsDTO::add);
         return new PageImpl<>(ingredientsDTO);
     }
@@ -50,7 +50,7 @@ public class IngredientServiceImpl implements IngredientService {
         ingredientRepository
                 .findAll(PageRequest.of(pageNumber, pageSize, Sort.by(direction, properties)))
                 .stream()
-                .map(ingredient -> new IngredientDTO(ingredient.getName(), ingredient.getUrlImage()))
+                .map(ingredient -> new IngredientDTO(ingredient.getId(), ingredient.getName(), ingredient.getUrlImage()))
                 .forEach(ingredientsDTO::add);
         return new PageImpl<>(ingredientsDTO);
     }
