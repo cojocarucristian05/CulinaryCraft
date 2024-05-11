@@ -17,7 +17,7 @@ class AuthService {
     };
 
     var body = jsonEncode(data);
-    var url = Uri.parse("$baseURL/register");
+    var url = Uri.parse("$baseURL/$registerPath");
 
     http.Response response = await http.post(
         url,
@@ -45,7 +45,7 @@ class AuthService {
     };
 
     var body = jsonEncode(data);
-    var url = Uri.parse("$baseURL/login");
+    var url = Uri.parse("$baseURL/$loginPath");
     Map<String, String> cookies = {};
 
     http.Response response = await http.post(
@@ -64,6 +64,10 @@ class AuthService {
     }
   }
 
+  static void logout() async {
+    deleteId();
+  }
+
   static void signInWithGoogle(BuildContext context, String username, String email) async {
     Map data = {
       "username": username,
@@ -71,7 +75,7 @@ class AuthService {
     };
 
     var body = jsonEncode(data);
-    var url = Uri.parse("$baseURL/sign-in-with-google");
+    var url = Uri.parse("$baseURL/$signInWithGooglePath");
 
     http.Response response = await http.post(
         url,
@@ -90,7 +94,7 @@ class AuthService {
   }
 
   static void forgotPassword(BuildContext context, String email) async {
-    var url = Uri.parse("$baseURL/forgot-password?email=$email");
+    var url = Uri.parse("$baseURL/$forgotPasswordPath$EMAIL_REQUEST_PARAMETER=$email");
     Map<String, String> cookies = {};
 
     http.Response response = await http.post(
@@ -117,7 +121,7 @@ class AuthService {
 
     int? id = await getId();
 
-    var url = Uri.parse("$baseURL/verify-code?userId=$id");
+    var url = Uri.parse("$baseURL/$verifyCodePath$ID_REQUEST_PARAMETER=$id");
     Map<String, String> cookies = {};
 
     http.Response response = await http.post(
@@ -158,18 +162,23 @@ class AuthService {
 
   static void setData(id, username, email) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('id', id);
-    prefs.setString('username', username);
-    prefs.setString('email', email);
+    prefs.setInt(ID, id);
+    prefs.setString(USERNAME, username);
+    prefs.setString(EMAIL, email);
   }
 
   static void setId(id) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('id', id);
+    prefs.setInt(ID, id);
   }
 
   static Future<int?> getId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('id');
+    return prefs.getInt(ID);
+  }
+
+  static void deleteId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(ID);
   }
 }

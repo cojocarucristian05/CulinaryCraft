@@ -1,2 +1,17 @@
 const String baseURL = "http://10.0.2.2:8080/api/v1";
 const Map<String, String> headers = {"Content-Type" : "application/json"};
+const String ID = "id";
+const String USERNAME = "username";
+const String EMAIL = "email";
+const String registerPath = "register";
+const String loginPath = "login";
+const String signInWithGooglePath = "sign-in-with-google";
+const String signInWithFacebookPath = "";
+const String forgotPasswordPath = "forgot-password";
+const String verifyCodePath = "verify-code";
+const String ingredientsPath = "ingredients";
+const String recipesPath = "recipes";
+const String ID_REQUEST_PARAMETER = "?userId";
+const String EMAIL_REQUEST_PARAMETER = "?email";
+const String PAGE_NUMBER_REQUEST_PARAMETER = "pageNumber";
+const String PAGE_SIZE_REQUEST_PARAMETER = "pageSize";
