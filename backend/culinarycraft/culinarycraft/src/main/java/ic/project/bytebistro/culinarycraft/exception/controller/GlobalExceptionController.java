@@ -53,7 +53,11 @@ public class GlobalExceptionController {
 
     @ExceptionHandler(value = RecipeNotFoundException.class)
     public ResponseEntity<String> handleRecipeNotFoundException(RecipeNotFoundException recipeNotFoundException) {
-        return new ResponseEntity<>(recipeNotFoundException.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(recipeNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(value = IngredientNotFoundException.class)
+    public ResponseEntity<String> handleIngredientNotFoundException(IngredientNotFoundException ingredientNotFoundException) {
+        return new ResponseEntity<>(ingredientNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

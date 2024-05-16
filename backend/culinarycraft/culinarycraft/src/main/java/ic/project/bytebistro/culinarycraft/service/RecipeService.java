@@ -1,5 +1,6 @@
 package ic.project.bytebistro.culinarycraft.service;
 
+import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import org.springframework.data.domain.Page;
 
@@ -13,4 +14,10 @@ public interface RecipeService {
     Page<RecipeDTO> getAllRecipesByUser(Long id, int pageNumber, int pageSize);
 
     Page<RecipeDTO> getAllRecipes(int pageNumber, int pageSize);
+
+    RecipeDTO craftRecipe(Long id, RecipeCreateDTO recipeCreateDTO);
+
+    Boolean addToFavourites(Long userId, Long recipeId);
+
+    Page<RecipeDTO> getFavouritesRecipes(Long userId, int pageNumber, int pageSize);
 }

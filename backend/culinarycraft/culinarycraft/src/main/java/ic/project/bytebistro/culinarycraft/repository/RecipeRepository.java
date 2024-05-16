@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Page<Recipe> findAllByUser(User user, Pageable pageable);
+    Page<Recipe> findAllByLikesContaining(User user, Pageable pageable);
 }
