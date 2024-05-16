@@ -28,3 +28,8 @@ spring:
 
   constants:
     companyName: "Culinary Craft"
+
+apiVersion: "/api/v1"
+
+admin:
+  password: ${ADMIN_PASSWORD}

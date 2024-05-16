@@ -1,3 +1,4 @@
+import 'package:culinary_craft_wireframe/Services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 import '../Components/appbar_widget.dart';
@@ -76,6 +77,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                     icon: Icons.logout,
                     text: 'Log out',
                     onTap: () {
+                      AuthService.logout();
                       Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
                     },
                   ),
