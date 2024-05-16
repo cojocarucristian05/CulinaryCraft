@@ -20,6 +20,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -57,6 +58,8 @@ public class UserServiceImpl implements UserService {
         User user = modelMapper.map(userRegisterRequestDTO, User.class);
         user.setLoginType(LoginType.USERNAME_PASSWORD);
         user.setIsActive(true);
+        user.setFavouritesRecipes(new ArrayList<>());
+        user.setMyRecipes(new ArrayList<>());
         registerResponseDTO = modelMapper.map(userRepository.save(user), RegisterResponseDTO.class);
         registerResponseDTO.setIsReactivated(false);
         return registerResponseDTO;

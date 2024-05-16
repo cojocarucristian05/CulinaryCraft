@@ -5,17 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class RecipeDTO {
+public class LikeDTO {
     private Long id;
-    private String name;
-    private String description;
-    private List<IngredientDTO> ingredients;
-    private String imageUrl;
-    private List<LikeDTO> likes;
+    private String username;
 }

@@ -1,5 +1,6 @@
 package ic.project.bytebistro.culinarycraft.controller;
 
+import ic.project.bytebistro.culinarycraft.repository.dto.request.IngredientsRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.service.RecipeService;
@@ -55,4 +56,24 @@ public class RecipeController {
         return new ResponseEntity<>(recipeService.getFavouritesRecipes(userId, pageNumber, pageSize), HttpStatus.OK);
     }
 
+    @PutMapping("/user-id={userId}/remove-from-favourite/recipe-id={recipeId}")
+    public ResponseEntity<Void> removeRecipeFromFavourites(@PathVariable Long userId,
+                                                           @PathVariable Long recipeId) {
+        recipeService.removeRecipeFromFavourites(userId, recipeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/user-id={userId}/delete/recipe-id={recipeId}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable Long userId,
+                                             @PathVariable Long recipeId) {
+        recipeService.deleteRecipe(userId, recipeId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<RecipeDTO>> searchRecipes(@RequestParam int pageNumber,
+                                                         @RequestParam int pageSize,
+                                                         @RequestBody IngredientsRequestDTO ingredientsID) {
+        return new ResponseEntity<>(recipeService.searchRecipes(ingredientsID, pageNumber, pageSize), HttpStatus.OK);
+    }
 }
