@@ -1,35 +1,56 @@
-
-import 'dart:ffi';
-
-import 'package:culinary_craft_wireframe/Components/Recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../Components/Recipe.dart';
+import '../Components/Ingredient.dart';
 import 'auth_service.dart';
 import 'globals.dart';
 
 class RecipeService {
-
-  static Future<List<Recipe>> getAllRecipesPagination() async {
-    const pageNumber = 0;
+  static Future<List<Recipe>> getAllRecipesPagination(int pageNumber) async {
     const pageSize = 8;
-    final uri = Uri.parse("$baseURL/$recipesPath/all?$PAGE_NUMBER_REQUEST_PARAMETER=$pageNumber&$PAGE_SIZE_REQUEST_PARAMETER=$pageSize");
+    final uri = Uri.parse(
+        "$baseURL/$recipesPath/all?$PAGE_NUMBER_REQUEST_PARAMETER=$pageNumber&$PAGE_SIZE_REQUEST_PARAMETER=$pageSize");
+
     try {
-      final response = await http.get(uri);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body)['data'];
-        return data.map((json) => Recipe(
-          name: json['name'],
-          description: json['description'],
-          imageURL: json['imageUrl'],
-        )).toList();
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody.containsKey('content') &&
+            responseBody['content'] is List) {
+          final List<dynamic> data = responseBody['content'];
+
+          return data.map((json) {
+            // Extracting ingredients data
+            List<Ingredient> ingredients = [];
+            if (json.containsKey('ingredients') &&
+                json['ingredients'] is List) {
+              List<dynamic> ingredientsData = json['ingredients'];
+              ingredients = ingredientsData.map((ingredientJson) {
+                return Ingredient(
+                  id: ingredientJson['id'] ?? 0,
+                  name: ingredientJson['name'] ?? 'Unknown',
+                  imageURL: ingredientJson['imageURL'] ?? '',
+                  selected: ingredientJson['selected'] ?? false,
+                );
+              }).toList();
+            }
+
+            return Recipe(
+              id: json['id'] ?? 0,
+              name: json['name'] ?? 'Unknown',
+              description: json['description'] ?? 'No description available',
+              imageURL: json['imageUrl'] ?? '',
+              ingredients: ingredients,
+            );
+          }).toList();
+        } else {
+          throw Exception('Unexpected response format');
+        }
       } else {
-        // If the server did not return a 200 OK response,
-        // throw an exception.
-        throw Exception('Failed to load ingredients');
+        throw Exception('Failed to load recipes: ${response.statusCode}');
       }
     } catch (e) {
-      // Handle network errors
       print('Error: $e');
       throw Exception('Failed to connect to the server');
     }
@@ -40,35 +61,50 @@ class RecipeService {
     const pageSize = 8;
     int? userId = await AuthService.getId();
 
-    final uri = Uri.parse("$baseURL/$recipesPath/all/user/$userId?$PAGE_NUMBER_REQUEST_PARAMETER=$pageNumber&$PAGE_SIZE_REQUEST_PARAMETER=$pageSize");
+    final uri = Uri.parse(
+        "$baseURL/$recipesPath/all/user/$userId?$PAGE_NUMBER_REQUEST_PARAMETER=$pageNumber&$PAGE_SIZE_REQUEST_PARAMETER=$pageSize");
 
     try {
-      final response = await http.get(uri);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['data'];
-        return data.map((json) => Recipe(
-          name: json['name'],
-          description: json['description'],
-          imageURL: json['imageUrl'],
-        )).toList();
+        return data.map((json) {
+          List<Ingredient> ingredients = [];
+          if (json.containsKey('ingredients') &&
+              json['ingredients'] is List) {
+            List<dynamic> ingredientsData = json['ingredients'];
+            ingredients = ingredientsData.map((ingredientJson) {
+              return Ingredient(
+                id: ingredientJson['id'] ?? 0,
+                name: ingredientJson['name'] ?? 'Unknown',
+                imageURL: ingredientJson['imageURL'] ?? '',
+                selected: ingredientJson['selected'] ?? false,
+              );
+            }).toList();
+          }
+          return Recipe(
+            id: json['id'],
+            name: json['name'],
+            description: json['description'],
+            imageURL: json['imageUrl'],
+            ingredients: ingredients,
+          );
+        }).toList();
       } else {
-        // If the server did not return a 200 OK response,
-        // throw an exception.
-        throw Exception('Failed to load ingredients');
+        throw Exception('Failed to load recipes');
       }
     } catch (e) {
-      // Handle network errors
       print('Error: $e');
       throw Exception('Failed to connect to the server');
     }
   }
 
   static Future<bool> craftRecipe(BuildContext context, String name, String description,
-                                  String imageUrl, Array ingredientsId) async {
+      String imageUrl, List<int> ingredientsId) async {
     int? userId = await AuthService.getId();
     final uri = Uri.parse("$baseURL/$recipesPath/user/$userId");
 
-    Map data = {
+    Map<String, dynamic> data = {
       "name": name,
       "description": description,
       "imageUrl": imageUrl,
@@ -86,12 +122,9 @@ class RecipeService {
       if (response.statusCode == 201) {
         return true;
       } else {
-        // If the server did not return a 201 CREATED response,
-        // throw an exception.
-        throw Exception('Failed to load ingredients');
+        throw Exception('Failed to create recipe');
       }
     } catch (e) {
-      // Handle network errors
       print('Error: $e');
       throw Exception('Failed to connect to the server');
     }
@@ -105,12 +138,9 @@ class RecipeService {
       if (response.statusCode == 200) {
         return true;
       } else {
-        // If the server did not return a 200 OK response,
-        // throw an exception.
-        throw Exception('Failed to load ingredients');
+        throw Exception('Failed to add recipe to favourites');
       }
     } catch (e) {
-      // Handle network errors
       print('Error: $e');
       throw Exception('Failed to connect to the server');
     }
@@ -127,18 +157,32 @@ class RecipeService {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['data'];
-        return data.map((json) => Recipe(
-          name: json['name'],
-          description: json['description'],
-          imageURL: json['imageUrl'],
-        )).toList();
+        return data.map((json) {
+          List<Ingredient> ingredients = [];
+          if (json.containsKey('ingredients') &&
+              json['ingredients'] is List) {
+            List<dynamic> ingredientsData = json['ingredients'];
+            ingredients = ingredientsData.map((ingredientJson) {
+              return Ingredient(
+                id: ingredientJson['id'] ?? 0,
+                name: ingredientJson['name'] ?? 'Unknown',
+                imageURL: ingredientJson['imageURL'] ?? '',
+                selected: ingredientJson['selected'] ?? false,
+              );
+            }).toList();
+          }
+          return Recipe(
+            id: json['id'],
+            name: json['name'],
+            description: json['description'],
+            imageURL: json['imageUrl'],
+            ingredients: ingredients,
+          );
+        }).toList();
       } else {
-        // If the server did not return a 200 OK response,
-        // throw an exception.
-        throw Exception('Failed to load ingredients');
+        throw Exception('Failed to load favourites recipes');
       }
     } catch (e) {
-      // Handle network errors
       print('Error: $e');
       throw Exception('Failed to connect to the server');
     }

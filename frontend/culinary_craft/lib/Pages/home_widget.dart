@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../Components/Ingredient.dart';
 import '../Components/ingredient_widget.dart';
 import '../Components/appbar_widget.dart';
+import '../Services/ingredient_service.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -12,20 +13,48 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
-  late List<Ingredient> ingredients;
+  List<Ingredient> ingredients = [];
   List<Ingredient> selectedIngredients = [];
+  int currentPage = 0;
+  bool isLoading = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    // Inițializăm lista cu ingrediente cu datele de test
-    ingredients = List.generate(10, (index) {
-      return Ingredient(
-        name: 'Egg',
-        imageURL: 'assets/images/egg.png',
-        selected: false,
-      );
+    _fetchIngredients();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
+        _fetchIngredients();
+      }
     });
+  }
+
+  Future<void> _fetchIngredients() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final newIngredients = await IngredientService.getIngredients(currentPage);
+      setState(() {
+        ingredients.addAll(newIngredients);
+        currentPage++;
+      });
+    } catch (e) {
+      print('Failed to load ingredients: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -67,47 +96,29 @@ class _HomeWidgetState extends State<HomeWidget> {
               SizedBox(height: 5),
               Expanded(
                 child: ListView.builder(
-                  itemCount: (ingredients.length / 2).ceil(),
+                  controller: _scrollController,
+                  itemCount: ingredients.length + (isLoading ? 1 : 0),
                   itemBuilder: (BuildContext context, int index) {
-                    final int firstIndex = index * 2;
-                    final int secondIndex =
-                    firstIndex + 1 < ingredients.length ? firstIndex + 1 : -1;
+                    if (index == ingredients.length) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    final ingredient = ingredients[index];
                     return Column(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: secondIndex != -1
-                                  ? IngredientWidget(
-                                name: ingredients[firstIndex].name,
-                                imageURL: ingredients[firstIndex].imageURL,
-                                selected: ingredients[firstIndex].selected,
-                                onTap: () {
-                                  setState(() {
-                                    toggleIngredientSelection(ingredients[firstIndex]);
-                                  });
-                                },
-                              )
-                                  : SizedBox(),
-                            ),
-                            SizedBox(width: 5),
-                            Expanded(
-                              child: secondIndex != -1
-                                  ? IngredientWidget(
-                                name: ingredients[secondIndex].name,
-                                imageURL: ingredients[secondIndex].imageURL,
-                                selected: ingredients[secondIndex].selected,
-                                onTap: () {
-                                  setState(() {
-                                    toggleIngredientSelection(ingredients[secondIndex]);
-                                  });
-                                },
-                              )
-                                  : SizedBox(),
-                            ),
-                          ],
+                        IngredientWidget(
+                          id: ingredient.id,
+                          name: ingredient.name,
+                          imageURL: ingredient.imageURL,
+                          selected: ingredient.selected,
+                          onTap: () {
+                            setState(() {
+                              toggleIngredientSelection(ingredient);
+                            });
+                          },
                         ),
-                        SizedBox(height: 5), // Spatiu intre randuri
+                        SizedBox(height: 5),
                       ],
                     );
                   },
@@ -157,9 +168,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         selectedIngredients.add(ingredient);
         ingredient.selected = true;
       }
-    for(Ingredient ing in selectedIngredients){
-      print(ing.name);
-    }
+      for (Ingredient ing in selectedIngredients) {
+        print(ing.name);
+      }
     });
   }
 }

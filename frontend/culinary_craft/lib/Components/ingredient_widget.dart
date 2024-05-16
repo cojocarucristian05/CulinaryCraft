@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-
 
 class IngredientWidget extends StatelessWidget {
+  final int id;
   final String name;
   final String imageURL;
   final bool selected;
   final VoidCallback onTap;
 
   IngredientWidget({
+    required this.id,
     required this.name,
     required this.imageURL,
     required this.selected,
@@ -17,30 +17,46 @@ class IngredientWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final completeImageURL = imageURL.startsWith('http') ? imageURL : 'https://$imageURL';
+
     return GestureDetector(
       onLongPress: () {
-        _showIngredientDetails(context);
+        _showIngredientDetails(context, completeImageURL);
       },
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? Color(0xFF90E0EF) : Color(0xFFFFFF),
+          color: selected ? Color(0xFF90E0EF) : Colors.white,
           borderRadius: BorderRadius.circular(15),
         ),
         child: ListTile(
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: EdgeInsets.all(8.0),
           tileColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0), // Adăugăm un mic spațiu între imagine și marginea din stânga
+          leading: SizedBox(
+            width: 50,
+            height: 50,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                imageURL,
-                width: 30,
-                height: 30,
+              child: Image.network(
+                completeImageURL,
+                width: 50,
+                height: 50,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.error, size: 50);
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -51,7 +67,7 @@ class IngredientWidget extends StatelessWidget {
           trailing: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.only(right: 8.0), // Adăugăm un mic spațiu între buton și marginea din dreapta
+              padding: const EdgeInsets.only(right: 8.0),
               child: Container(
                 alignment: Alignment.center,
                 width: 40,
@@ -72,7 +88,7 @@ class IngredientWidget extends StatelessWidget {
     );
   }
 
-  void _showIngredientDetails(BuildContext context) {
+  void _showIngredientDetails(BuildContext context, String completeImageURL) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -85,15 +101,28 @@ class IngredientWidget extends StatelessWidget {
               SizedBox(
                 width: 100,
                 height: 100,
-                child: Image.asset(
-                  imageURL,
+                child: Image.network(
+                  completeImageURL,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, size: 100);
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
                 ),
               ),
               SizedBox(height: 10),
               Text(
                 name,
-                style: TextStyle(fontSize: 18), // Mărimea textului mărită
+                style: TextStyle(fontSize: 18),
               ),
             ],
           ),
