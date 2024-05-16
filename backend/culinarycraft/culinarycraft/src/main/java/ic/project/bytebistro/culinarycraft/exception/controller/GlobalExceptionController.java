@@ -60,4 +60,9 @@ public class GlobalExceptionController {
     public ResponseEntity<String> handleIngredientNotFoundException(IngredientNotFoundException ingredientNotFoundException) {
         return new ResponseEntity<>(ingredientNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(value = RecipeAlreadyLikedException.class)
+    public ResponseEntity<String> handleRecipeAlreadyLikedException(RecipeAlreadyLikedException recipeAlreadyLikedException) {
+        return new ResponseEntity<>(recipeAlreadyLikedException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

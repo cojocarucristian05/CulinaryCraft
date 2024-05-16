@@ -1,14 +1,13 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
-import ic.project.bytebistro.culinarycraft.exception.IngredientNotFoundException;
-import ic.project.bytebistro.culinarycraft.exception.RecipeNotFoundException;
-import ic.project.bytebistro.culinarycraft.exception.UserInactiveException;
-import ic.project.bytebistro.culinarycraft.exception.UserNotFoundException;
+import ic.project.bytebistro.culinarycraft.exception.*;
 import ic.project.bytebistro.culinarycraft.repository.IngredientRepository;
 import ic.project.bytebistro.culinarycraft.repository.RecipeRepository;
 import ic.project.bytebistro.culinarycraft.repository.UserRepository;
+import ic.project.bytebistro.culinarycraft.repository.dto.request.IngredientsRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.IngredientDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.LikeDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.Ingredient;
 import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
@@ -16,14 +15,12 @@ import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.RecipeService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -86,6 +83,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .urlImage(recipeCreateDTO.getImageUrl())
                 .user(user)
                 .ingredients(ingredients)
+                .likes(new ArrayList<>())
                 .build();
         recipeRepository.save(recipe);
         userRepository.save(user);
@@ -106,6 +104,9 @@ public class RecipeServiceImpl implements RecipeService {
     public Boolean addToFavourites(Long userId, Long recipeId) {
         User user = getUser(userId);
         Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
+        if (user.getFavouritesRecipes().contains(recipe)) {
+            throw new RecipeAlreadyLikedException();
+        }
         user.getFavouritesRecipes().add(recipe);
         recipe.getLikes().add(user);
         userRepository.save(user);
@@ -118,6 +119,43 @@ public class RecipeServiceImpl implements RecipeService {
         User user = getUser(userId);
         Page<Recipe> recipes = recipeRepository
                 .findAllByLikesContaining(user, PageRequest.of(pageNumber, pageSize, Sort.unsorted()));
+        List<RecipeDTO> recipeDTOS = mapRecipes(recipes);
+        return new PageImpl<>(recipeDTOS);
+    }
+
+    @Override
+    public void removeRecipeFromFavourites(Long userId, Long recipeId) {
+        User user = getUser(userId);
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
+        if (!user.getFavouritesRecipes().contains(recipe)) {
+            throw new RecipeNotFoundException();
+        }
+        user.getFavouritesRecipes().remove(recipe);
+        recipe.getLikes().remove(user);
+        userRepository.save(user);
+        recipeRepository.save(recipe);
+    }
+
+    @Override
+    public void deleteRecipe(Long userId, Long recipeId) {
+        User user = getUser(userId);
+        Recipe recipe = recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
+        if (!user.getMyRecipes().contains(recipe)) {
+            throw new RecipeNotFoundException();
+        }
+        user.getMyRecipes().remove(recipe);
+        recipe.getLikes().remove(user);
+        recipeRepository.delete(recipe);
+        userRepository.save(user);
+    }
+
+    @Override
+    public Page<RecipeDTO> searchRecipes(IngredientsRequestDTO ingredientsRequestDTO, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        List<Long> ingredientsIdList = Arrays.asList(ingredientsRequestDTO.getIngredientsID());
+
+        Page<Recipe> recipes = recipeRepository.findByIngredientsContaining(ingredientsIdList, ingredientsIdList.size(), pageable);
+
         List<RecipeDTO> recipeDTOS = mapRecipes(recipes);
         return new PageImpl<>(recipeDTOS);
     }
@@ -141,12 +179,21 @@ public class RecipeServiceImpl implements RecipeService {
         List<RecipeDTO> recipeDTOS = new ArrayList<>();
         recipes
                 .stream()
-                .map(recipe -> new RecipeDTO(
-                        recipe.getId(),
-                        recipe.getName(),
-                        recipe.getDescription(),
-                        mapIngredients(recipe.getIngredients()),
-                        recipe.getUrlImage()))
+                .map(recipe -> RecipeDTO.builder()
+                        .id(recipe.getId())
+                        .name(recipe.getName())
+                        .description(recipe.getDescription())
+                        .ingredients(mapIngredients(recipe.getIngredients()))
+                        .imageUrl(recipe.getUrlImage())
+                        .likes(recipe.getLikes()
+                                .stream()
+                                .map(like -> LikeDTO.builder()
+                                                    .id(like.getId())
+                                                    .username(like.getUsername())
+                                                    .build())
+                                .toList()
+                        )
+                        .build())
                 .forEach(recipeDTOS::add);
         return recipeDTOS;
     }
