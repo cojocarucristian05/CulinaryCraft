@@ -4,11 +4,14 @@ import ic.project.bytebistro.culinarycraft.repository.dto.request.IngredientsReq
 import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.service.RecipeService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,10 +41,10 @@ public class RecipeController {
         return new ResponseEntity<>(recipeService.getAllRecipes(pageNumber, pageSize), HttpStatus.OK);
     }
 
-    @PostMapping("/user/{id}")
-    public ResponseEntity<RecipeDTO> craftRecipe(@PathVariable Long id, @RequestBody RecipeCreateDTO recipeCreateDTO) {
-        return new ResponseEntity<>(recipeService.craftRecipe(id, recipeCreateDTO), HttpStatus.CREATED);
-    }
+//    @PostMapping("/user/{id}")
+//    public ResponseEntity<RecipeDTO> craftRecipe(@PathVariable Long id, @RequestBody RecipeCreateDTO recipeCreateDTO) {
+//        return new ResponseEntity<>(recipeService.craftRecipe(id, recipeCreateDTO), HttpStatus.CREATED);
+//    }
 
     @PutMapping("/user-id={userId}/add-to-favourite/recipe-id={recipeId}")
     public ResponseEntity<Boolean> addToFavourite(@PathVariable Long userId,
@@ -75,5 +78,15 @@ public class RecipeController {
                                                          @RequestParam int pageSize,
                                                          @RequestBody IngredientsRequestDTO ingredientsID) {
         return new ResponseEntity<>(recipeService.searchRecipes(ingredientsID, pageNumber, pageSize), HttpStatus.OK);
+    }
+
+    @Transactional
+    @PostMapping("/user/{id}")
+    public ResponseEntity<RecipeDTO> craftRecipe(@PathVariable Long id,
+                                                  @RequestParam String name,
+                                                  @RequestParam String description,
+                                                  @RequestParam Long[] ingredientsID,
+                                                  @RequestParam MultipartFile image) throws IOException {
+        return new ResponseEntity<>(recipeService.craftRecipe2(id, name, description, ingredientsID, image), HttpStatus.CREATED);
     }
 }
