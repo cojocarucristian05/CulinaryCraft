@@ -46,10 +46,28 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Hello, ',
-                    style: Theme.of(context).textTheme.headline1!,
-                  ),
+                   FutureBuilder<String?>(
+                      future: AuthService.getUsername(),
+                      builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Text(
+                            'Loading...',
+                            style: Theme.of(context).textTheme.headline1!,
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: Theme.of(context).textTheme.headline1!,
+                          );
+                        } else {
+                          final username = snapshot.data ?? 'Guest';
+                          return Text(
+                            'Hello, $username',
+                            style: Theme.of(context).textTheme.headline1!,
+                          );
+                        }
+                      },
+                    ),
                   const SizedBox(height: 12),
                   _buildProfileButton(
                     icon: Icons.person_outline_rounded,
@@ -61,12 +79,16 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   _buildProfileButton(
                     icon: Icons.restaurant_rounded,
                     text: 'My Recipes',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/view_my_recipes');
+                    },
                   ),
                   _buildProfileButton(
                     icon: Icons.favorite_border_sharp,
                     text: 'Saved Recipes',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/view_favorite_recipes');
+                    },
                   ),
                   _buildProfileButton(
                     icon: Icons.info_outlined,

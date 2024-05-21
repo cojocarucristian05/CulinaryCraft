@@ -1,14 +1,18 @@
 import 'package:culinary_craft_wireframe/Models/change_password_model.dart';
 import 'package:culinary_craft_wireframe/Pages/change_password_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/create_account_widget.dart';
+import 'package:culinary_craft_wireframe/Pages/create_recipe_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/forgot_password_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/onboarding_slideshow_widget.dart';
 import 'package:culinary_craft_wireframe/Pages/reset_password_with_code_widget.dart';
+import 'package:culinary_craft_wireframe/Pages/view_favorite_recipes.dart';
+import 'package:culinary_craft_wireframe/Pages/view_my_recipes.dart';
 import 'package:culinary_craft_wireframe/Pages/view_recipes_widget.dart';
 import 'package:culinary_craft_wireframe/Services/recipe_service.dart';
 import 'package:culinary_craft_wireframe/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'Components/Ingredient.dart';
 import 'Components/Recipe.dart';
 import 'Pages/edit_profile_widget.dart';
 import 'Pages/get_started_widget.dart';
@@ -38,7 +42,13 @@ void main() async {
       '/forgot_password':(context) => ForgotPasswordWidget(),
       '/reset_password_with_code':(context) => ResetPasswordWithCodeWidget(),
       '/change_password':(context) => ChangePasswordWidget(),
-      '/view_recipes': (context) => ViewRecipesWidget(),
+      '/view_recipes': (context) => ViewRecipesWidget(
+        selectedIngredients: ModalRoute.of(context)!.settings.arguments as List<Ingredient>,
+      ),
+      '/create_recipes': (context) => CreateRecipeWidget( ingredients: ModalRoute.of(context)!.settings.arguments as List<Ingredient>,),
+      '/view_favorite_recipes':(context) => ViewFavoriteRecipesWidget(),
+      '/view_my_recipes':(context) => ViewMyRecipesWidget(),
     },
   ));
 }
+

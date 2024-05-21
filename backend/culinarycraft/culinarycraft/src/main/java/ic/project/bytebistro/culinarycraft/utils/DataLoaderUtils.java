@@ -62,7 +62,7 @@ public class DataLoaderUtils implements CommandLineRunner {
                 Throwable::printStackTrace,
                 () -> {
                     System.out.println("\nCOMPLETED\n".toUpperCase());
-//                    fetchRecipes();
+             //       fetchRecipes();
                 }
             );
         }

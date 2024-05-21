@@ -22,7 +22,7 @@ class IngredientService {
             int index = entry.key;
             var json = entry.value;
             return Ingredient(
-              id: index,
+              id: json['id'],
               name: json['name'],
               imageURL: json['imageUrl'],
               selected: false,

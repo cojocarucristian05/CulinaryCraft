@@ -4,6 +4,8 @@ import '../Components/Ingredient.dart';
 import '../Components/ingredient_widget.dart';
 import '../Components/appbar_widget.dart';
 import '../Services/ingredient_service.dart';
+import '../Services/recipe_service.dart'; // Importăm serviciul pentru rețete
+import 'view_recipes_widget.dart'; // Importăm widget-ul de vizualizare a rețetelor
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -124,15 +126,58 @@ class _HomeWidgetState extends State<HomeWidget> {
                   },
                 ),
               ),
+          SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: selectedIngredients.isNotEmpty
+                  ? () async {
+                // Navighează către pagina de vizualizare a rețetelor și trimite lista de rețete
+                Navigator.of(context).pushNamed('/create_recipes', arguments: selectedIngredients);
+              }
+                  : null, // Dezactivează butonul dacă nu sunt ingrediente selectate
+              child: Text(
+                'Create Recipe',
+                style: GoogleFonts.roboto(
+                  textStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF0077B6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 15),
+              ),
+            ),
+          ),
               SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Afiseaza ingredientele selectate
-                    print(selectedIngredients);
-                    Navigator.of(context).pushNamed('/view_recipes');
-                  },
+                  onPressed: selectedIngredients.isNotEmpty
+                      ? () async {
+                    final recipes =
+                    await RecipeService.searchRecipes(
+                      selectedIngredients.map((ing) => ing.id).toList(),
+                      0,
+                    );
+                    if (recipes.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('No recipes found.'),
+                        ),
+                      );
+                    } else {
+                      Navigator.of(context).pushNamed('/view_recipes',
+                          arguments: selectedIngredients);
+                    }
+                  }
+                      : null,
                   child: Text(
                     'Search Recipes',
                     style: GoogleFonts.roboto(

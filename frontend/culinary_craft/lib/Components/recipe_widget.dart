@@ -17,12 +17,7 @@ class RecipeCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Imaginea rețetei
-            Image.network(
-              recipe.imageURL,
-              width: 150,
-              height: 150,
-              fit: BoxFit.cover,
-            ),
+            _buildRecipeImage(recipe.imageURL),
             SizedBox(height: 8), // Spațiu mic între imagine și text
             // Numele rețetei
             Text(
@@ -33,10 +28,27 @@ class RecipeCard extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildRecipeImage(String imageUrl) {
+    if (imageUrl.startsWith('http')) {
+      return Image.network(
+        imageUrl,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        imageUrl,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    }
   }
 }

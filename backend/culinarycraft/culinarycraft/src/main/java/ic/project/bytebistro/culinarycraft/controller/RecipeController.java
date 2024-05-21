@@ -70,7 +70,7 @@ public class RecipeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<Page<RecipeDTO>> searchRecipes(@RequestParam int pageNumber,
                                                          @RequestParam int pageSize,
                                                          @RequestBody IngredientsRequestDTO ingredientsID) {

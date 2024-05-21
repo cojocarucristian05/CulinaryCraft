@@ -1,4 +1,5 @@
 import 'Ingredient.dart';
+import 'Like.dart';
 
 class Recipe {
   final int id;
@@ -6,6 +7,7 @@ class Recipe {
   final String description;
   final String imageURL;
   final List<Ingredient> ingredients;
+  final List<Like> likes;
 
   Recipe({
     required this.id,
@@ -13,5 +15,6 @@ class Recipe {
     required this.description,
     required this.imageURL,
     required this.ingredients,
+    required this.likes
   });
 }
