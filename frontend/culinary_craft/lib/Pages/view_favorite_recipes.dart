@@ -2,29 +2,30 @@ import 'package:flutter/material.dart';
 import '../Components/Ingredient.dart';
 import '../Components/Recipe.dart';
 import '../Components/recipe_widget.dart';
-import '../Services/recipe_service.dart';
 import '../Services/auth_service.dart';
+import '../Services/recipe_service.dart';
 
-class ViewRecipesWidget extends StatefulWidget {
-  final List<Ingredient> selectedIngredients;
+class ViewFavoriteRecipesWidget extends StatefulWidget {
 
-  ViewRecipesWidget({required this.selectedIngredients});
+  ViewFavoriteRecipesWidget();
 
   @override
-  _ViewRecipesWidgetState createState() => _ViewRecipesWidgetState();
+  _ViewFavoriteRecipesWidgetState createState() => _ViewFavoriteRecipesWidgetState();
 }
 
-class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
-  List<Recipe> recipes = [];
-  int currentPage = 0;
-  bool isLoading = false;
-  final ScrollController _scrollController = ScrollController();
+class _ViewFavoriteRecipesWidgetState extends State<ViewFavoriteRecipesWidget> {
+  List<Recipe> recipes = []; // Lista de rețete căutate
+  int currentPage = 0; // Pagina curentă pentru paginare
+  bool isLoading = false; // Stare pentru a urmări dacă se încarcă date
+
+  final ScrollController _scrollController = ScrollController(); // Controller pentru Scroll
 
   @override
   void initState() {
     super.initState();
-    _searchRecipes();
+    _searchRecipes(); // Înainte de a afișa widget-ul, se caută rețetele pe baza ingredientelor selectate
 
+    // Adaugă un listener pentru scroll pentru a încărca mai multe date când utilizatorul ajunge la capătul listei
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
         _searchRecipes();
@@ -34,21 +35,22 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
 
   Future<void> _searchRecipes() async {
     setState(() {
-      isLoading = true;
+      isLoading = true; // Setează starea de încărcare
     });
 
     try {
-      List<int> ingredientsIds = widget.selectedIngredients.map((ingredient) => ingredient.id).toList();
-      final List<Recipe> searchedRecipes = await RecipeService.searchRecipes(ingredientsIds, currentPage);
+      // Apelează funcția pentru a căuta rețetele pe baza ingredientelor selectate și a paginii curente
+      final List<Recipe> searchedRecipes = await RecipeService.getFavouritesRecipesByUserPagination(currentPage);
       setState(() {
-        recipes.addAll(searchedRecipes);
-        currentPage++;
+        recipes.addAll(searchedRecipes); // Adaugă noile rețete la lista existentă
+        currentPage++; // Incrementează pagina curentă
       });
     } catch (e) {
       print('Error searching recipes: $e');
+      // În cazul unei erori, poți trata situația aici (cum ar fi afișarea unui mesaj de eroare)
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Resetează starea de încărcare
       });
     }
   }
@@ -69,7 +71,7 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ListView.builder(
           controller: _scrollController,
-          itemCount: recipes.length + (isLoading ? 1 : 0),
+          itemCount: recipes.length + (isLoading ? 1 : 0), // Adaugă un item pentru indicatorul de încărcare
           itemBuilder: (BuildContext context, int index) {
             if (index == recipes.length) {
               return Center(
@@ -79,6 +81,7 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
             final recipe = recipes[index];
             return GestureDetector(
               onTap: () {
+                // Deschide pagina de detalii a rețetei când se apasă pe un card de rețetă
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -97,6 +100,7 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
     );
   }
 }
+
 
 class RecipeDetailsScreen extends StatefulWidget {
   final Recipe recipe;

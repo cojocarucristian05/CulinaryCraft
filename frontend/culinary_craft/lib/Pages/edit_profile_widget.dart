@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Models/edit_profile_model.dart';
+import '../Services/auth_service.dart';
 
 class EditProfileWidget extends StatefulWidget {
   const EditProfileWidget({Key? key}) : super(key: key);
@@ -58,18 +59,34 @@ class _EditProfileWidgetState extends State<EditProfileWidget> {
                   ),
                 ),
                 const Text(
-                  'Full Name',
+                  'Email',
                   style: TextStyle(
                     fontSize: 24,
+                    fontWeight: FontWeight.bold,
                     fontFamily: 'Roboto', // Utilizăm fontul Roboto
                   ),
                 ),
-                const Text(
-                  '---- aici se va afisa numele ----',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Roboto', // Utilizăm fontul Roboto
-                  ),
+                FutureBuilder<String?>(
+                  future: AuthService.getEmail(),
+                  builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text(
+                        'Loading...',
+                        style: Theme.of(context).textTheme.bodyText1!,
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text(
+                        'Error: ${snapshot.error}',
+                        style: Theme.of(context).textTheme.bodyText1!,
+                      );
+                    } else {
+                      final email = snapshot.data ?? 'Guest';
+                      return Text(
+                        '$email',
+                        style: Theme.of(context).textTheme.bodyText1!,
+                      );
+                    }
+                  },
                 ),
                 // Widget-ul TitleWithSubtitleWidget
                 const Text(
@@ -194,8 +211,10 @@ class DeleteAccountConfirmationDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+              onPressed: () async {
+                // Dezactivează contul și închide dialogul
+                await AuthService.deactivateAccount();
+                Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFFD4D4)),
@@ -219,9 +238,10 @@ class DeleteAccountConfirmationDialog extends StatelessWidget {
             ),
             SizedBox(height: 10), // Spațiu între butoane
             ElevatedButton(
-              onPressed: () {
-                // Adăugați aici logica pentru ștergerea efectivă a contului
-                Navigator.of(context).pop();
+              onPressed: () async {
+                // Șterge contul și închide dialogul
+                await AuthService.deleteAccount();
+                Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFFD4D4)),

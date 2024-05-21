@@ -160,6 +160,38 @@ class AuthService {
     setData(id, username, email);
   }
 
+  static Future<void> deactivateAccount() async {
+    int? id = await getId();
+    var url = Uri.parse("$baseURL/deactivate-account/$id");
+
+    http.Response response = await http.put(url, headers: headers);
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      print("Account deactivated successfully");
+      deleteId(); // Optionally clear user data from local storage
+    } else {
+      print("Error deactivating account");
+    }
+  }
+
+  static Future<void> deleteAccount() async {
+    int? id = await getId();
+    var url = Uri.parse("$baseURL/delete-account/$id");
+
+    http.Response response = await http.delete(url, headers: headers);
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      print("Account deleted successfully");
+      deleteId(); // Optionally clear user data from local storage
+    } else {
+      print("Error deleting account");
+    }
+  }
+
   static void setData(id, username, email) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt(ID, id);
@@ -167,6 +199,15 @@ class AuthService {
     prefs.setString(EMAIL, email);
   }
 
+  static Future<String?> getUsername() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(USERNAME);
+  }
+
+  static Future<String?> getEmail() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(EMAIL);
+  }
   static void setId(id) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt(ID, id);

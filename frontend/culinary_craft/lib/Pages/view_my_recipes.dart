@@ -5,16 +5,16 @@ import '../Components/recipe_widget.dart';
 import '../Services/recipe_service.dart';
 import '../Services/auth_service.dart';
 
-class ViewRecipesWidget extends StatefulWidget {
-  final List<Ingredient> selectedIngredients;
+class ViewMyRecipesWidget extends StatefulWidget {
 
-  ViewRecipesWidget({required this.selectedIngredients});
+
+  ViewMyRecipesWidget();
 
   @override
-  _ViewRecipesWidgetState createState() => _ViewRecipesWidgetState();
+  _ViewMyRecipesWidgetState createState() => _ViewMyRecipesWidgetState();
 }
 
-class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
+class _ViewMyRecipesWidgetState extends State<ViewMyRecipesWidget> {
   List<Recipe> recipes = [];
   int currentPage = 0;
   bool isLoading = false;
@@ -38,8 +38,7 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
     });
 
     try {
-      List<int> ingredientsIds = widget.selectedIngredients.map((ingredient) => ingredient.id).toList();
-      final List<Recipe> searchedRecipes = await RecipeService.searchRecipes(ingredientsIds, currentPage);
+      final List<Recipe> searchedRecipes = await RecipeService.getAllRecipesByUserPagination(currentPage);
       setState(() {
         recipes.addAll(searchedRecipes);
         currentPage++;
@@ -112,34 +111,19 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _checkIfFavorite();
   }
 
-  Future<void> _checkIfFavorite() async {
-    int? userId = await AuthService.getId();
-    if (userId != null) {
-      setState(() {
-        isFavorite = widget.recipe.likes.any((like) => like.id == userId);
-      });
-    }
-  }
-
-  Future<void> _toggleFavorite() async {
+  Future<void> _deleteRecipe() async {
     try {
-      bool success;
-      if (isFavorite) {
-        success = await RecipeService.removeRecipeFromFavourites(widget.recipe.id);
-      } else {
-        success = await RecipeService.addRecipeToFavourites(widget.recipe.id);
-      }
-
+      bool success = await RecipeService.deleteRecipe(widget.recipe.id);
       if (success) {
-        setState(() {
-          isFavorite = !isFavorite;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Recipe deleted successfully')),
+        );
+        Navigator.of(context).pop(true); // Indicate that the recipe was deleted
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update favourite status')),
+          SnackBar(content: Text('Failed to delete recipe')),
         );
       }
     } catch (e) {
@@ -147,6 +131,40 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         SnackBar(content: Text('Failed to connect to the server')),
       );
     }
+  }
+  Future<void> _showDeleteConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to delete this recipe?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteRecipe();
+
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -194,10 +212,9 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _toggleFavorite,
+        onPressed: _showDeleteConfirmationDialog,
         child: Icon(
-          isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: isFavorite ? Colors.red : null,
+          Icons.delete,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
