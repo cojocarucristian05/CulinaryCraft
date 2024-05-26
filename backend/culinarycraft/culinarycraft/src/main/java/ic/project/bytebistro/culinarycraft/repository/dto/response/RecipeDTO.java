@@ -17,5 +17,6 @@ public class RecipeDTO {
     private String description;
     private List<IngredientDTO> ingredients;
     private String imageUrl;
+    private byte[] imageData;
     private List<LikeDTO> likes;
 }

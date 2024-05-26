@@ -1,23 +1,29 @@
 package ic.project.bytebistro.culinarycraft.service.implementation;
 
 import ic.project.bytebistro.culinarycraft.exception.*;
+import ic.project.bytebistro.culinarycraft.repository.ImageRepository;
 import ic.project.bytebistro.culinarycraft.repository.IngredientRepository;
 import ic.project.bytebistro.culinarycraft.repository.RecipeRepository;
 import ic.project.bytebistro.culinarycraft.repository.UserRepository;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.IngredientsRequestDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.request.RecipeCreateDTO;
+import ic.project.bytebistro.culinarycraft.repository.dto.response.ImageUploadResponse;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.IngredientDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.LikeDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.entity.Image;
 import ic.project.bytebistro.culinarycraft.repository.entity.Ingredient;
 import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.RecipeService;
+import ic.project.bytebistro.culinarycraft.utils.ImageUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,12 +37,16 @@ public class RecipeServiceImpl implements RecipeService {
     private final UserRepository userRepository;
 
     private final IngredientRepository ingredientRepository;
+
+    private final ImageRepository imageRepository;
+
     private final ModelMapper modelMapper;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository, IngredientRepository ingredientRepository, ModelMapper modelMapper) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, UserRepository userRepository, IngredientRepository ingredientRepository, ImageRepository imageRepository, ModelMapper modelMapper) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
         this.ingredientRepository = ingredientRepository;
+        this.imageRepository = imageRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -48,7 +58,8 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<RecipeDTO> getAllRecipeByUserId(Long id) {
         User user = getUser(id);
-        Type listType = new TypeToken<List<RecipeDTO>>(){}.getType();
+        Type listType = new TypeToken<List<RecipeDTO>>() {
+        }.getType();
         return modelMapper.map(user.getMyRecipes(), listType);
     }
 
@@ -87,7 +98,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .build();
         recipeRepository.save(recipe);
         userRepository.save(user);
-        ingredients.forEach(ingredient ->  {
+        ingredients.forEach(ingredient -> {
             ingredient.getRecipes().add(recipe);
             ingredientRepository.save(ingredient);
         });
@@ -160,6 +171,46 @@ public class RecipeServiceImpl implements RecipeService {
         return new PageImpl<>(recipeDTOS);
     }
 
+    @Override
+    public RecipeDTO craftRecipe2(Long id, String name, String description, Long[] ingredientsID, MultipartFile file) throws IOException {
+        User user = getUser(id);
+        List<Ingredient> ingredients = new ArrayList<>();
+        for (Long ingredientId : ingredientsID) {
+            Ingredient ingredient = ingredientRepository.findById(ingredientId).orElseThrow(IngredientNotFoundException::new);
+            ingredients.add(ingredient);
+        }
+        Image image = Image.builder()
+                .name(file.getOriginalFilename())
+                .type(file.getContentType())
+                .imageData(ImageUtils.compressImage(file.getBytes()))
+                .recipe(new Recipe())
+                .build();
+        Recipe recipe = Recipe.builder()
+                .user(user)
+                .name(name)
+                .description(description)
+                .likes(new ArrayList<>())
+                .ingredients(ingredients)
+                .image(image)
+                .build();
+        image.setRecipe(recipe);
+        recipeRepository.save(recipe);
+        imageRepository.save(image);
+        userRepository.save(user);
+        ingredients.forEach(ingredient -> {
+            ingredient.getRecipes().add(recipe);
+            ingredientRepository.save(ingredient);
+        });
+        return RecipeDTO.builder()
+                .id(recipe.getId())
+                .name(recipe.getName())
+                .description(recipe.getDescription())
+                .ingredients(mapIngredients(recipe.getIngredients()))
+                .imageUrl(recipe.getUrlImage())
+                .imageData(image.getImageData())
+                .build();
+    }
+
     private User getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         if (!user.getIsActive()) {
@@ -185,16 +236,24 @@ public class RecipeServiceImpl implements RecipeService {
                         .description(recipe.getDescription())
                         .ingredients(mapIngredients(recipe.getIngredients()))
                         .imageUrl(recipe.getUrlImage())
+                        .imageData(getImageData(recipe))
                         .likes(recipe.getLikes()
                                 .stream()
                                 .map(like -> LikeDTO.builder()
-                                                    .id(like.getId())
-                                                    .username(like.getUsername())
-                                                    .build())
+                                        .id(like.getId())
+                                        .username(like.getUsername())
+                                        .build())
                                 .toList()
                         )
                         .build())
                 .forEach(recipeDTOS::add);
         return recipeDTOS;
+    }
+
+    private byte[] getImageData(Recipe recipe) {
+        if (recipe.getImage() == null) {
+            return new byte[0];
+        }
+        return recipe.getImage().getImageData();
     }
 }
