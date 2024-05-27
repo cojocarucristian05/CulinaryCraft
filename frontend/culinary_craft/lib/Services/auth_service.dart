@@ -8,8 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class AuthService {
-  static void register(BuildContext context, String username, String email,
-      String password) async {
+  static Future<String?> register(BuildContext context, String username, String email, String password) async {
     Map data = {
       "username": username,
       "email": email,
@@ -20,22 +19,24 @@ class AuthService {
     var url = Uri.parse("$baseURL/$registerPath");
 
     http.Response response = await http.post(
-        url,
-        headers: headers,
-        body: body
+      url,
+      headers: headers,
+      body: body,
     );
 
     print("status: ${response.statusCode}");
 
     if (response.statusCode == 201) {
       Navigator.of(context).pushReplacementNamed('/signin');
+      return null; // Fără eroare
+    } else if (response.statusCode == 409) {
+      return "Email is already in use";
     } else {
-      print("Error!");
+      return "Email is already in use";
     }
   }
 
-  static void login(BuildContext context, String username, String password) async {
-
+  static Future<String?> login(BuildContext context, String username, String password) async {
     var bytesPassword = utf8.encode(password);
     var hashPassword = sha256.convert(bytesPassword);
 
@@ -59,8 +60,12 @@ class AuthService {
     if (response.statusCode == 200) {
       retriveDataFromResponse(response);
       Navigator.of(context).pushReplacementNamed('/home');
+      return null;  // Fără eroare
+    } else if (response.statusCode == 409) {
+      // Specific pentru cazurile de conflict, cum ar fi email-ul deja folosit
+      return "Please enter a valid account !";
     } else {
-      print("Error!");
+      return "Please enter a valid account !";
     }
   }
 

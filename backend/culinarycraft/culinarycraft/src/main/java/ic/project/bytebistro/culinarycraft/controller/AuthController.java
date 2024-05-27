@@ -9,12 +9,14 @@ import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseD
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
 import ic.project.bytebistro.culinarycraft.service.MailService;
 import ic.project.bytebistro.culinarycraft.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletableFuture;
 
+@Transactional
 @RestController
 @RequestMapping("${apiVersion}")
 public class AuthController {

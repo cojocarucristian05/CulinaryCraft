@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Transactional
 @RestController
 @RequestMapping("${apiVersion}/recipes")
 public class RecipeController {
@@ -73,6 +74,7 @@ public class RecipeController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Transactional
     @PostMapping("/search")
     public ResponseEntity<Page<RecipeDTO>> searchRecipes(@RequestParam int pageNumber,
                                                          @RequestParam int pageSize,

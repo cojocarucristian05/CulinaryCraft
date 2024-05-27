@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'Recipe.dart';
 
@@ -17,7 +18,7 @@ class RecipeCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Imaginea rețetei
-            _buildRecipeImage(recipe.imageURL),
+            _buildRecipeImage(recipe.imageURL, recipe.imageData),
             SizedBox(height: 8), // Spațiu mic între imagine și text
             // Numele rețetei
             Text(
@@ -34,7 +35,7 @@ class RecipeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRecipeImage(String imageUrl) {
+  Widget _buildRecipeImage(String imageUrl, Uint8List imageData) {
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,
@@ -42,12 +43,19 @@ class RecipeCard extends StatelessWidget {
         height: 150,
         fit: BoxFit.cover,
       );
-    } else {
-      return Image.asset(
-        imageUrl,
+    } else if (imageData.isNotEmpty) {
+      return Image.memory(
+        imageData,
         width: 150,
         height: 150,
         fit: BoxFit.cover,
+      );
+    } else {
+      return Container(
+        width: 150,
+        height: 150,
+        color: Colors.grey,
+        child: Icon(Icons.image, size: 50, color: Colors.white),
       );
     }
   }

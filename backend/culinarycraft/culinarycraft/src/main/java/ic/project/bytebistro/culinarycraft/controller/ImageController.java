@@ -3,6 +3,7 @@ package ic.project.bytebistro.culinarycraft.controller;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.ImageUploadResponse;
 import ic.project.bytebistro.culinarycraft.repository.entity.Image;
 import ic.project.bytebistro.culinarycraft.service.ImageService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@Transactional
 @RestController
 @RequestMapping("${apiVersion}/images")
 public class ImageController {

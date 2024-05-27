@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../Components/Ingredient.dart';
-import '../Services/recipe_service.dart'; // Importați serviciul
+import '../Services/recipe_service.dart';
 import 'dart:io';
-import 'dart:convert';
 
 class CreateRecipeWidget extends StatefulWidget {
   final List<Ingredient> ingredients;
@@ -37,7 +36,7 @@ class _CreateRecipeWidgetState extends State<CreateRecipeWidget> {
     if (name.isNotEmpty && description.isNotEmpty) {
       final List<int> ingredientsId = widget.ingredients.map((ingredient) => ingredient.id).toList();
       try {
-        bool success = await RecipeService.craftRecipe(context, name, description, imageUrl, ingredientsId);
+        bool success = await RecipeService.craftRecipe(context, name, description, imageUrl, ingredientsId, _image);
         if (success) {
           Navigator.of(context).pop();
         } else {

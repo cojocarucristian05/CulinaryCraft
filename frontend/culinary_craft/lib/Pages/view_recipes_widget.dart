@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import '../Components/Ingredient.dart';
 import '../Components/Recipe.dart';
@@ -7,8 +9,8 @@ import '../Services/auth_service.dart';
 
 class ViewRecipesWidget extends StatefulWidget {
   final List<Ingredient> selectedIngredients;
-
-  ViewRecipesWidget({required this.selectedIngredients});
+  final Uint8List? imageData;
+  ViewRecipesWidget({required this.selectedIngredients, this.imageData});
 
   @override
   _ViewRecipesWidgetState createState() => _ViewRecipesWidgetState();
@@ -166,7 +168,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                   // Do something to make the image bigger
                 });
               },
-              child: _buildRecipeImage(widget.recipe.imageURL),
+              child: _buildRecipeImage(widget.recipe.imageURL, widget.recipe.imageData),
             ),
             SizedBox(height: 16),
             Text(
@@ -204,20 +206,27 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
     );
   }
 
-  Widget _buildRecipeImage(String imageUrl) {
+  Widget _buildRecipeImage(String imageUrl, Uint8List imageData) {
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,
-        width: double.infinity,
-        height: 200,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    } else if (imageData.isNotEmpty) {
+      return Image.memory(
+        imageData,
+        width: 150,
+        height: 150,
         fit: BoxFit.cover,
       );
     } else {
-      return Image.asset(
-        imageUrl,
-        width: double.infinity,
-        height: 200,
-        fit: BoxFit.cover,
+      return Container(
+        width: 150,
+        height: 150,
+        color: Colors.grey,
+        child: Icon(Icons.image, size: 50, color: Colors.white),
       );
     }
   }

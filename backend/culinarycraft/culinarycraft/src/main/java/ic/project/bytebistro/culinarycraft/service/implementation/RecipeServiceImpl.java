@@ -207,7 +207,7 @@ public class RecipeServiceImpl implements RecipeService {
                 .description(recipe.getDescription())
                 .ingredients(mapIngredients(recipe.getIngredients()))
                 .imageUrl(recipe.getUrlImage())
-                .imageData(image.getImageData())
+                .imageData(ImageUtils.decompressImage(image.getImageData()))
                 .build();
     }
 
@@ -254,6 +254,6 @@ public class RecipeServiceImpl implements RecipeService {
         if (recipe.getImage() == null) {
             return new byte[0];
         }
-        return recipe.getImage().getImageData();
+        return ImageUtils.decompressImage(recipe.getImage().getImageData());
     }
 }

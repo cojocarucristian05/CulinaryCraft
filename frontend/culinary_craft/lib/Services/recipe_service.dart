@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,6 +8,11 @@ import '../Components/Recipe.dart';
 import '../Components/Ingredient.dart';
 import 'auth_service.dart';
 import 'globals.dart';
+import 'dart:io';
+import 'dart:io';
+import 'package:http_parser/http_parser.dart';
+
+
 
 class RecipeService {
   static Future<List<Recipe>> getAllRecipesPagination(int pageNumber) async {
@@ -50,9 +57,10 @@ class RecipeService {
               id: json['id'],
               name: json['name'],
               description: json['description'],
-              imageURL: json['imageUrl'],
+              imageURL: json['imageUrl'] ?? "",
               ingredients: ingredients,
               likes: likes,
+              imageData: json['imageData'] ?? ""
             );
           }).toList();
         } else {
@@ -106,9 +114,10 @@ class RecipeService {
             id: json['id'],
             name: json['name'],
             description: json['description'],
-            imageURL: json['imageUrl'],
+            imageURL: json['imageUrl'] ?? "",
             ingredients: ingredients,
             likes: likes,
+            imageData: json['imageData'] ?? ""
           );
         }).toList();
       } else {
@@ -120,29 +129,32 @@ class RecipeService {
     }
   }
 
-  static Future<bool> craftRecipe(BuildContext context, String name, String description,
-      String imageUrl, List<int> ingredientsId) async {
-    int? userId = await AuthService.getId();
+  static Future<bool> craftRecipe(BuildContext context, String name, String description, String imageUrl, List<int> ingredientsId, File? image) async {
+    int? userId = await AuthService.getId(); // Assuming AuthService is correctly implemented to get the user ID
     final uri = Uri.parse("$baseURL/$recipesPath/user/$userId");
 
-    Map<String, dynamic> data = {
-      "name": name,
-      "description": description,
-      "imageUrl": imageUrl,
-      "ingredientsID": ingredientsId
-    };
-
-    var body = jsonEncode(data);
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['name'] = name
+      ..fields['description'] = description
+      ..fields['ingredientsID'] = "1";
+    // for (int id in ingredientsId) {
+    //   request.fields['ingredientsID'] = id.toString();
+    // }
+    if (image != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'image',
+        image.path,
+        contentType: MediaType('image', 'jpeg'),
+      ));
+    }
 
     try {
-      http.Response response = await http.post(
-          uri,
-          headers: headers,
-          body: body
-      );
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
       if (response.statusCode == 201) {
         return true;
       } else {
+        print('Failed to create recipe: ${response.body}');
         throw Exception('Failed to create recipe');
       }
     } catch (e) {
@@ -223,9 +235,10 @@ class RecipeService {
             id: json['id'],
             name: json['name'],
             description: json['description'],
-            imageURL: json['imageUrl'],
+            imageURL: json['imageUrl'] ?? "",
             ingredients: ingredients,
             likes: likes,
+            imageData: json['imageData'] ?? ""
           );
         }).toList();
       } else {
@@ -251,7 +264,7 @@ class RecipeService {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody.containsKey('content') && responseBody['content'] is List) {
           final List<dynamic> data = responseBody['content'];
-
+          print(data);
           return data.map((json) {
             // Extracting ingredients data
             List<Ingredient> ingredients = [];
@@ -267,6 +280,7 @@ class RecipeService {
               }).toList();
             }
 
+            // Extracting likes data
             List<Like> likes = [];
             if (json.containsKey('likes') && json['likes'] is List) {
               List<dynamic> likesData = json['likes'];
@@ -277,13 +291,29 @@ class RecipeService {
                 );
               }).toList();
             }
+            print(json['imageData']);
+            // Decoding image data from base64 string
+            Uint8List imageData = Uint8List(0);
+            if (json.containsKey('imageData') && json['imageData'] is String) {
+              try {
+                imageData = base64Decode(json['imageData']);
+                print('Decoded image data successfully.');
+              } catch (e) {
+                print('Error decoding image data: $e');
+              }
+            } else {
+              print('No valid image data found.');
+            }
+            print(imageData);
+
             return Recipe(
-              id: json['id'],
-              name: json['name'],
-              description: json['description'],
-              imageURL: json['imageUrl'],
-              ingredients: ingredients,
-              likes: likes,
+                id: json['id'],
+                name: json['name'],
+                description: json['description'],
+                imageURL: json['imageUrl'] ?? "",
+                ingredients: ingredients,
+                likes: likes,
+                imageData: imageData
             );
           }).toList();
         } else {
