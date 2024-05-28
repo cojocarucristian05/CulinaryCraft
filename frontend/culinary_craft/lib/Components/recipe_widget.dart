@@ -10,7 +10,7 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color(0xFFCAF0F8), // Setăm culoarea cardului
+      color: Colors.white, // Setăm culoarea cardului
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Transactional
@@ -87,8 +88,12 @@ public class RecipeController {
     public ResponseEntity<RecipeDTO> craftRecipe(@PathVariable Long id,
                                                   @RequestParam String name,
                                                   @RequestParam String description,
-                                                  @RequestParam Long[] ingredientsID,
+                                                  @RequestParam String ingredientsID,
                                                   @RequestParam MultipartFile image) throws IOException {
-        return new ResponseEntity<>(recipeService.craftRecipe2(id, name, description, ingredientsID, image), HttpStatus.CREATED);
+        Long[] ingredientsIdArray = Arrays.stream(ingredientsID.replaceAll("[\\[\\]]", "").split(","))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .toArray(Long[]::new);
+        return new ResponseEntity<>(recipeService.craftRecipe2(id, name, description, ingredientsIdArray, image), HttpStatus.CREATED);
     }
 }

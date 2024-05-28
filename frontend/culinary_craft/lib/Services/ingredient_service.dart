@@ -11,10 +11,8 @@ class IngredientService {
 
     try {
       final response = await http.get(uri, headers: headers);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
-        print(responseBody);
         if (responseBody.containsKey('content') && responseBody['content'] is List) {
           final List<dynamic> data = responseBody['content'];
 

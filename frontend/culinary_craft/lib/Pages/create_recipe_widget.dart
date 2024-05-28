@@ -3,7 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import '../Components/Ingredient.dart';
 import '../Services/recipe_service.dart';
 import 'dart:io';
-
+import 'package:flutter/services.dart' show rootBundle; // pentru a încărca asset-ul implicit
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 class CreateRecipeWidget extends StatefulWidget {
   final List<Ingredient> ingredients;
 
@@ -28,15 +30,27 @@ class _CreateRecipeWidgetState extends State<CreateRecipeWidget> {
     }
   }
 
+  Future<File> _getDefaultImageFile() async {
+    final byteData = await rootBundle.load(defaultImage);
+    final file = File('${(await getTemporaryDirectory()).path}/default_image.png');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
+  }
+
   Future<void> _createRecipe() async {
     final String name = _nameController.text;
     final String description = _descriptionController.text;
-    final String imageUrl = _image != null ? _image!.path : defaultImage;
 
     if (name.isNotEmpty && description.isNotEmpty) {
       final List<int> ingredientsId = widget.ingredients.map((ingredient) => ingredient.id).toList();
       try {
-        bool success = await RecipeService.craftRecipe(context, name, description, imageUrl, ingredientsId, _image);
+        File imageFile;
+        if (_image != null) {
+          imageFile = _image!;
+        } else {
+          imageFile = await _getDefaultImageFile();
+        }
+        bool success = await RecipeService.craftRecipe(context, name, description, imageFile.path, ingredientsId, imageFile);
         if (success) {
           Navigator.of(context).pop();
         } else {

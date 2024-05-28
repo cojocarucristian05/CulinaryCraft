@@ -65,8 +65,14 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipes'),
+        title: Text('Recipes',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white)),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Culoarea săgeții de întoarcere
+        ),
+        backgroundColor: Color(0xFF00b4d8),
       ),
+      backgroundColor: Color(0xFF00b4d8),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ListView.builder(
@@ -162,13 +168,15 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // Do something to make the image bigger
-                });
-              },
-              child: _buildRecipeImage(widget.recipe.imageURL, widget.recipe.imageData),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    // Do something to make the image bigger
+                  });
+                },
+                child: _buildRecipeImage(widget.recipe.imageURL, widget.recipe.imageData),
+              ),
             ),
             SizedBox(height: 16),
             Text(
@@ -210,21 +218,21 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,
-        width: 150,
-        height: 150,
+        width: 350,
+        height: 250,
         fit: BoxFit.cover,
       );
     } else if (imageData.isNotEmpty) {
       return Image.memory(
         imageData,
-        width: 150,
-        height: 150,
+        width: 350,
+        height: 250,
         fit: BoxFit.cover,
       );
     } else {
       return Container(
-        width: 150,
-        height: 150,
+        width: 350,
+        height: 250,
         color: Colors.grey,
         child: Icon(Icons.image, size: 50, color: Colors.white),
       );

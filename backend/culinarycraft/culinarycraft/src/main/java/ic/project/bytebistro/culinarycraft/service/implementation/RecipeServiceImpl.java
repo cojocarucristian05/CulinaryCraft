@@ -154,8 +154,12 @@ public class RecipeServiceImpl implements RecipeService {
         if (!user.getMyRecipes().contains(recipe)) {
             throw new RecipeNotFoundException();
         }
+        for (User u : recipe.getLikes()) {
+            u.getFavouritesRecipes().remove(recipe);
+            userRepository.save(u);
+        }
         user.getMyRecipes().remove(recipe);
-        recipe.getLikes().remove(user);
+        //recipe.getLikes().remove(user);
         recipeRepository.delete(recipe);
         userRepository.save(user);
     }
@@ -210,7 +214,6 @@ public class RecipeServiceImpl implements RecipeService {
                 .imageData(ImageUtils.decompressImage(image.getImageData()))
                 .build();
     }
-
     private User getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         if (!user.getIsActive()) {

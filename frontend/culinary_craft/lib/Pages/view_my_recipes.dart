@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../Components/Ingredient.dart';
 import '../Components/Recipe.dart';
@@ -6,8 +7,6 @@ import '../Services/recipe_service.dart';
 import '../Services/auth_service.dart';
 
 class ViewMyRecipesWidget extends StatefulWidget {
-
-
   ViewMyRecipesWidget();
 
   @override
@@ -52,6 +51,12 @@ class _ViewMyRecipesWidgetState extends State<ViewMyRecipesWidget> {
     }
   }
 
+  Future<void> _onRecipeDeleted(Recipe deletedRecipe) async {
+    setState(() {
+      recipes.removeWhere((recipe) => recipe.id == deletedRecipe.id);
+    });
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -62,11 +67,24 @@ class _ViewMyRecipesWidgetState extends State<ViewMyRecipesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipes'),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Culoarea săgeții de întoarcere
+        ),
+        title: Text('My Recipes',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white)),
+        backgroundColor: Color(0xFF00b4d8),
       ),
+      backgroundColor: Color(0xFF00b4d8),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ListView.builder(
+        child: recipes.isEmpty
+            ? Center(
+          child: Text(
+            'No recipes found.',
+            style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold,color:Colors.white),
+          ),
+        )
+            : ListView.builder(
           controller: _scrollController,
           itemCount: recipes.length + (isLoading ? 1 : 0),
           itemBuilder: (BuildContext context, int index) {
@@ -77,13 +95,16 @@ class _ViewMyRecipesWidgetState extends State<ViewMyRecipesWidget> {
             }
             final recipe = recipes[index];
             return GestureDetector(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => RecipeDetailsScreen(recipe: recipe),
                   ),
                 );
+                if (result == true) {
+                  await _onRecipeDeleted(recipe);
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
@@ -132,6 +153,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
       );
     }
   }
+
   Future<void> _showDeleteConfirmationDialog() async {
     return showDialog<void>(
       context: context,
@@ -158,7 +180,6 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
               onPressed: () async {
                 Navigator.of(context).pop();
                 await _deleteRecipe();
-
               },
             ),
           ],
@@ -178,13 +199,15 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // Do something to make the image bigger
-                });
-              },
-              child: _buildRecipeImage(widget.recipe.imageURL),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    // Do something to make the image bigger
+                  });
+                },
+                child: _buildRecipeImage(widget.recipe.imageURL, widget.recipe.imageData),
+              ),
             ),
             SizedBox(height: 16),
             Text(
@@ -221,20 +244,27 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
     );
   }
 
-  Widget _buildRecipeImage(String imageUrl) {
+  Widget _buildRecipeImage(String imageUrl, Uint8List imageData) {
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,
-        width: double.infinity,
-        height: 200,
+        width: 350,
+        height: 250,
+        fit: BoxFit.cover,
+      );
+    } else if (imageData.isNotEmpty) {
+      return Image.memory(
+        imageData,
+        width: 350,
+        height: 250,
         fit: BoxFit.cover,
       );
     } else {
-      return Image.asset(
-        imageUrl,
-        width: double.infinity,
-        height: 200,
-        fit: BoxFit.cover,
+      return Container(
+        width: 350,
+        height: 250,
+        color: Colors.grey,
+        child: Icon(Icons.image, size: 50, color: Colors.white),
       );
     }
   }

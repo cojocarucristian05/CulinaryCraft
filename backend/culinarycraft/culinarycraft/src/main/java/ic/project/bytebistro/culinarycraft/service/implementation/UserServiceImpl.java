@@ -13,6 +13,7 @@ import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RegisterResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.UserResponseDTO;
 import ic.project.bytebistro.culinarycraft.repository.entity.LoginType;
+import ic.project.bytebistro.culinarycraft.repository.entity.Recipe;
 import ic.project.bytebistro.culinarycraft.repository.entity.User;
 import ic.project.bytebistro.culinarycraft.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -151,6 +152,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteAccount(Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        for(Recipe r:user.getMyRecipes()){
+            for (User u : r.getLikes()) {
+                u.getFavouritesRecipes().remove(r);
+                userRepository.save(u);
+            }
+        }
         userRepository.delete(user);
     }
 

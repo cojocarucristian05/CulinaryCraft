@@ -9,10 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static Future<String?> register(BuildContext context, String username, String email, String password) async {
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
     Map data = {
       "username": username,
       "email": email,
-      "password": password,
+      "password": hashPassword.toString(),
     };
 
     var body = jsonEncode(data);

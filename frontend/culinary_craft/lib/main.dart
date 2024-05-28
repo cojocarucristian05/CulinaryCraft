@@ -14,6 +14,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'Components/Ingredient.dart';
 import 'Components/Recipe.dart';
+import 'Pages/about_us_widget.dart';
 import 'Pages/edit_profile_widget.dart';
 import 'Pages/get_started_widget.dart';
 import 'Pages/home_widget.dart';
@@ -48,6 +49,7 @@ void main() async {
       '/create_recipes': (context) => CreateRecipeWidget( ingredients: ModalRoute.of(context)!.settings.arguments as List<Ingredient>,),
       '/view_favorite_recipes':(context) => ViewFavoriteRecipesWidget(),
       '/view_my_recipes':(context) => ViewMyRecipesWidget(),
+      '/about_us':(context) => AboutUsWidget(),
     },
   ));
 }
