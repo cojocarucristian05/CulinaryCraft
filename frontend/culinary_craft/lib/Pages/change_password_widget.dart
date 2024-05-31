@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Models/change_password_model.dart';
+import '../Services/auth_service.dart';
 
 class ChangePasswordWidget extends StatefulWidget {
   const ChangePasswordWidget({Key? key}) : super(key: key);
@@ -41,7 +42,7 @@ class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
         if (_model.passwordController1.text != _model.passwordController2.text) {
           _passwordError2 = 'Passwords do not match';
         } else {
-          // Perform password change logic
+          AuthService.changePassword(context,_model.passwordController1.text);
         }
       }
     });

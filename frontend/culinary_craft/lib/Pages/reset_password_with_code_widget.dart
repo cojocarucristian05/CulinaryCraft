@@ -38,7 +38,7 @@ class _ResetPasswordWithCodeWidgetState
       }
     });
     if (_codeError == null) {
-      Navigator.of(context).pushNamed('/change_password');
+     // Navigator.of(context).pushNamed('/change_password');
       AuthService.verifyCode(context, enteredCode);
       _codeError = 'The code is wrong';
     }

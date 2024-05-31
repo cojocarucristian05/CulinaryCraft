@@ -127,7 +127,6 @@ class AuthService {
   static void verifyCode(BuildContext context, String securityCode) async {
 
     int? id = await getId();
-
     var url = Uri.parse("$baseURL/$verifyCodePath$ID_REQUEST_PARAMETER=$id");
     Map<String, String> cookies = {};
 
@@ -135,6 +134,28 @@ class AuthService {
       url,
       headers: headers,
       body: securityCode
+    );
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).pushNamed('/change_password');
+    } else {
+      print("Error!");
+    }
+  }
+
+  static void changePassword(BuildContext context, String password) async {
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
+    int? id = await getId();
+    var url = Uri.parse("$baseURL/change-password$ID_REQUEST_PARAMETER=$id");
+    Map<String, String> cookies = {};
+
+    http.Response response = await http.put(
+        url,
+        headers: headers,
+        body: hashPassword.toString()
     );
 
     print("status: ${response.statusCode}");
