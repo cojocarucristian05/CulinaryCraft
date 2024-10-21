@@ -3,6 +3,7 @@ package ic.project.bytebistro.culinarycraft.service.implementation;
 import ic.project.bytebistro.culinarycraft.repository.IngredientRepository;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.IngredientDTO;
 import ic.project.bytebistro.culinarycraft.repository.dto.response.RecipeDTO;
+import ic.project.bytebistro.culinarycraft.repository.entity.Ingredient;
 import ic.project.bytebistro.culinarycraft.service.IngredientService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -45,6 +46,16 @@ public class IngredientServiceImpl implements IngredientService {
         return getIngredientsHelper(pageNumber, pageSize, Sort.Direction.DESC, "name");
     }
 
+    @Override
+    public IngredientDTO getIngredientByName(String name) {
+        Ingredient ingredient = ingredientRepository.findByName(name);
+        return IngredientDTO.builder()
+                .name(name)
+                .id(ingredient.getId())
+                .imageUrl(ingredient.getUrlImage())
+                .build();
+    }
+
     private Page<IngredientDTO> getIngredientsHelper(int pageNumber, int pageSize, Sort.Direction direction, String ... properties) {
         List<IngredientDTO> ingredientsDTO = new ArrayList<>();
         ingredientRepository
@@ -54,4 +65,6 @@ public class IngredientServiceImpl implements IngredientService {
                 .forEach(ingredientsDTO::add);
         return new PageImpl<>(ingredientsDTO);
     }
+
+
 }
