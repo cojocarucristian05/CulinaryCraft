@@ -8,34 +8,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class AuthService {
-  static void register(BuildContext context, String username, String email,
-      String password) async {
+  static Future<String?> register(BuildContext context, String username, String email, String password) async {
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
     Map data = {
       "username": username,
       "email": email,
-      "password": password,
+      "password": hashPassword.toString(),
     };
 
     var body = jsonEncode(data);
     var url = Uri.parse("$baseURL/$registerPath");
 
     http.Response response = await http.post(
-        url,
-        headers: headers,
-        body: body
+      url,
+      headers: headers,
+      body: body,
     );
 
     print("status: ${response.statusCode}");
 
     if (response.statusCode == 201) {
       Navigator.of(context).pushReplacementNamed('/signin');
+      return null; // Fără eroare
+    } else if (response.statusCode == 409) {
+      return "Email is already in use";
     } else {
-      print("Error!");
+      return "Email is already in use";
     }
   }
 
-  static void login(BuildContext context, String username, String password) async {
-
+  static Future<String?> login(BuildContext context, String username, String password) async {
     var bytesPassword = utf8.encode(password);
     var hashPassword = sha256.convert(bytesPassword);
 
@@ -59,8 +62,12 @@ class AuthService {
     if (response.statusCode == 200) {
       retriveDataFromResponse(response);
       Navigator.of(context).pushReplacementNamed('/home');
+      return null;  // Fără eroare
+    } else if (response.statusCode == 409) {
+      // Specific pentru cazurile de conflict, cum ar fi email-ul deja folosit
+      return "Please enter a valid account !";
     } else {
-      print("Error!");
+      return "Please enter a valid account !";
     }
   }
 
@@ -120,7 +127,6 @@ class AuthService {
   static void verifyCode(BuildContext context, String securityCode) async {
 
     int? id = await getId();
-
     var url = Uri.parse("$baseURL/$verifyCodePath$ID_REQUEST_PARAMETER=$id");
     Map<String, String> cookies = {};
 
@@ -128,6 +134,28 @@ class AuthService {
       url,
       headers: headers,
       body: securityCode
+    );
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).pushNamed('/change_password');
+    } else {
+      print("Error!");
+    }
+  }
+
+  static void changePassword(BuildContext context, String password) async {
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
+    int? id = await getId();
+    var url = Uri.parse("$baseURL/change-password$ID_REQUEST_PARAMETER=$id");
+    Map<String, String> cookies = {};
+
+    http.Response response = await http.put(
+        url,
+        headers: headers,
+        body: hashPassword.toString()
     );
 
     print("status: ${response.statusCode}");

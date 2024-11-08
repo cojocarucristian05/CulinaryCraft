@@ -39,10 +39,10 @@ public class User {
     @Column(name = "active")
     private Boolean isActive;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Recipe> myRecipes;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade =  CascadeType.ALL)
     @JoinTable(
             name = "user_favourites_recipes",
             joinColumns = @JoinColumn(name = "user_id"),

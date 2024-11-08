@@ -44,4 +44,7 @@ public class Recipe {
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "favouritesRecipes")
     private List<User> likes;
 
+    @OneToOne
+    private Image image;
+
 }

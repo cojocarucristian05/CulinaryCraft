@@ -93,7 +93,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   _buildProfileButton(
                     icon: Icons.info_outlined,
                     text: 'About Us',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/about_us');
+                    },
                   ),
                   _buildProfileButton(
                     icon: Icons.logout,

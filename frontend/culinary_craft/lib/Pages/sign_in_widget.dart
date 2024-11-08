@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../Models/sign_in_model.dart';
-export '../Models/sign_in_model.dart';
+import '../Services/auth_service.dart'; // Import the AuthService
 
 class SignInWidget extends StatefulWidget {
   const SignInWidget({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class _SignInWidgetState extends State<SignInWidget> {
   late SignInModel _model;
   String? _usernameError;
   String? _passwordError;
+  String? _authError; // New field for authentication error
 
   @override
   void initState() {
@@ -52,20 +54,21 @@ class _SignInWidgetState extends State<SignInWidget> {
     super.dispose();
   }
 
-  void _signIn() {
+  void _signIn() async {
     setState(() {
       _usernameError = _model.emailAddressController?.text.isEmpty == true ? 'Please enter your username' : null;
       _passwordError = _model.passwordController?.text.isEmpty == true ? 'Please enter your password' : null;
-
-      if (_usernameError == null && _passwordError == null) {
-        _model.signIn(context, _model.emailAddressController!.text, _model.passwordController!.text);
-        _usernameError = null;
-        _passwordError = 'Please enter a valid account';
-      }
+      _authError = null; // Reset authentication error
     });
 
     if (_usernameError == null && _passwordError == null) {
-
+      // Call the AuthService.login and handle the error message
+      String? error = await AuthService.login(context, _model.emailAddressController!.text, _model.passwordController!.text);
+      if (error != null) {
+        setState(() {
+          _authError = error;
+        });
+      }
     }
   }
 
@@ -88,6 +91,12 @@ class _SignInWidgetState extends State<SignInWidget> {
                   ),
                 ),
                 SizedBox(height: 30),
+                if (_authError != null) // Display authentication error
+                  Text(
+                    _authError!,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                SizedBox(height: 10),
                 TextField(
                   controller: _model.emailAddressController,
                   keyboardType: TextInputType.emailAddress,

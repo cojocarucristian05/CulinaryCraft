@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,6 +8,11 @@ import '../Components/Recipe.dart';
 import '../Components/Ingredient.dart';
 import 'auth_service.dart';
 import 'globals.dart';
+import 'dart:io';
+import 'dart:io';
+import 'package:http_parser/http_parser.dart';
+
+
 
 class RecipeService {
   static Future<List<Recipe>> getAllRecipesPagination(int pageNumber) async {
@@ -46,13 +53,26 @@ class RecipeService {
                 );
               }).toList();
             }
+            Uint8List imageData = Uint8List(0);
+            if (json.containsKey('imageData') && json['imageData'] is String) {
+              try {
+                imageData = base64Decode(json['imageData']);
+                print('Decoded image data successfully.');
+              } catch (e) {
+                print('Error decoding image data: $e');
+              }
+            } else {
+              print('No valid image data found.');
+            }
+
             return Recipe(
-              id: json['id'],
-              name: json['name'],
-              description: json['description'],
-              imageURL: json['imageUrl'],
-              ingredients: ingredients,
-              likes: likes,
+                id: json['id'],
+                name: json['name'],
+                description: json['description'],
+                imageURL: json['imageUrl'] ?? "",
+                ingredients: ingredients,
+                likes: likes,
+                imageData: imageData
             );
           }).toList();
         } else {
@@ -102,13 +122,26 @@ class RecipeService {
               );
             }).toList();
           }
+          Uint8List imageData = Uint8List(0);
+          if (json.containsKey('imageData') && json['imageData'] is String) {
+            try {
+              imageData = base64Decode(json['imageData']);
+              print('Decoded image data successfully.');
+            } catch (e) {
+              print('Error decoding image data: $e');
+            }
+          } else {
+            print('No valid image data found.');
+          }
+
           return Recipe(
-            id: json['id'],
-            name: json['name'],
-            description: json['description'],
-            imageURL: json['imageUrl'],
-            ingredients: ingredients,
-            likes: likes,
+              id: json['id'],
+              name: json['name'],
+              description: json['description'],
+              imageURL: json['imageUrl'] ?? "",
+              ingredients: ingredients,
+              likes: likes,
+              imageData: imageData
           );
         }).toList();
       } else {
@@ -121,28 +154,31 @@ class RecipeService {
   }
 
   static Future<bool> craftRecipe(BuildContext context, String name, String description,
-      String imageUrl, List<int> ingredientsId) async {
+      String imageUrl, List<int> ingredientsId, File? image) async {
     int? userId = await AuthService.getId();
     final uri = Uri.parse("$baseURL/$recipesPath/user/$userId");
 
-    Map<String, dynamic> data = {
-      "name": name,
-      "description": description,
-      "imageUrl": imageUrl,
-      "ingredientsID": ingredientsId
-    };
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['name'] = name
+      ..fields['description'] = description
+      ..fields['imageUrl'] = imageUrl
+      ..fields['ingredientsID'] = jsonEncode(ingredientsId); // trimite lista de ID-uri ca JSON
 
-    var body = jsonEncode(data);
+    if (image != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'image',
+        image.path,
+        contentType: MediaType('image', 'jpeg'),
+      ));
+    }
 
     try {
-      http.Response response = await http.post(
-          uri,
-          headers: headers,
-          body: body
-      );
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
       if (response.statusCode == 201) {
         return true;
       } else {
+        print('Failed to create recipe: ${response.body}');
         throw Exception('Failed to create recipe');
       }
     } catch (e) {
@@ -186,14 +222,11 @@ class RecipeService {
   static Future<List<Recipe>> getFavouritesRecipesByUserPagination(int pageNumber) async {
     const pageSize = 8;
     int? userId = await AuthService.getId();
-    print(userId);
     final uri = Uri.parse("$baseURL/$recipesPath/favourites/user-id=$userId?$PAGE_NUMBER_REQUEST_PARAMETER=$pageNumber&$PAGE_SIZE_REQUEST_PARAMETER=$pageSize");
 
     try {
       final response = await http.get(uri);
-      print(response.statusCode);
       if (response.statusCode == 200) {
-        print(response.body);
         final List<dynamic> data = json.decode(response.body)['content'];
         return data.map((json) {
           List<Ingredient> ingredients = [];
@@ -219,13 +252,26 @@ class RecipeService {
               );
             }).toList();
           }
+          Uint8List imageData = Uint8List(0);
+          if (json.containsKey('imageData') && json['imageData'] is String) {
+            try {
+              imageData = base64Decode(json['imageData']);
+              print('Decoded image data successfully.');
+            } catch (e) {
+              print('Error decoding image data: $e');
+            }
+          } else {
+            print('No valid image data found.');
+          }
+
           return Recipe(
-            id: json['id'],
-            name: json['name'],
-            description: json['description'],
-            imageURL: json['imageUrl'],
-            ingredients: ingredients,
-            likes: likes,
+              id: json['id'],
+              name: json['name'],
+              description: json['description'],
+              imageURL: json['imageUrl'] ?? "",
+              ingredients: ingredients,
+              likes: likes,
+              imageData: imageData
           );
         }).toList();
       } else {
@@ -240,7 +286,6 @@ class RecipeService {
   static Future<List<Recipe>> searchRecipes(List<int> ingredientsIds, int pageNumber) async {
     const pageSize = 8;
     final uri = Uri.parse("$baseURL/$recipesPath/search?pageNumber=$pageNumber&pageSize=$pageSize");
-    print(ingredientsIds);
     try {
       final response = await http.post(
         uri,
@@ -251,7 +296,6 @@ class RecipeService {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody.containsKey('content') && responseBody['content'] is List) {
           final List<dynamic> data = responseBody['content'];
-
           return data.map((json) {
             // Extracting ingredients data
             List<Ingredient> ingredients = [];
@@ -267,6 +311,7 @@ class RecipeService {
               }).toList();
             }
 
+            // Extracting likes data
             List<Like> likes = [];
             if (json.containsKey('likes') && json['likes'] is List) {
               List<dynamic> likesData = json['likes'];
@@ -277,13 +322,26 @@ class RecipeService {
                 );
               }).toList();
             }
+            Uint8List imageData = Uint8List(0);
+            if (json.containsKey('imageData') && json['imageData'] is String) {
+              try {
+                imageData = base64Decode(json['imageData']);
+                print('Decoded image data successfully.');
+              } catch (e) {
+                print('Error decoding image data: $e');
+              }
+            } else {
+              print('No valid image data found.');
+            }
+
             return Recipe(
-              id: json['id'],
-              name: json['name'],
-              description: json['description'],
-              imageURL: json['imageUrl'],
-              ingredients: ingredients,
-              likes: likes,
+                id: json['id'],
+                name: json['name'],
+                description: json['description'],
+                imageURL: json['imageUrl'] ?? "",
+                ingredients: ingredients,
+                likes: likes,
+                imageData: imageData
             );
           }).toList();
         } else {

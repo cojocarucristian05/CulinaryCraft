@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Models/create_account_model.dart';
+import '../Services/auth_service.dart';
 
 class CreateAccountWidget extends StatefulWidget {
   const CreateAccountWidget({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
   String? _emailError;
   String? _passwordError;
   String? _usernameError;
+  String? _authError; // New field for authentication error
 
   @override
   void initState() {
@@ -31,20 +33,27 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
     super.dispose();
   }
 
-  void _createAccount() {
+  void _createAccount() async {
     setState(() {
       _emailError = _model.emailAddressControllerValidator!(context, _model.emailAddressController!.text);
       _passwordError = _model.passwordControllerValidator!(context, _model.passwordController!.text);
       _usernameError = _model.usernameControllerValidator!(context, _model.usernameController!.text);
-      if (_emailError == null && _passwordError == null && _usernameError == null) {
-        _model.createAccount(
-          context,
-          _model.usernameController!.text,
-          _model.emailAddressController!.text,
-          _model.passwordController!.text,
-        );
-      }
+      _authError = null; // Reset authentication error
     });
+
+    if (_emailError == null && _passwordError == null && _usernameError == null) {
+      String? error = await AuthService.register(
+        context,
+        _model.usernameController!.text,
+        _model.emailAddressController!.text,
+        _model.passwordController!.text,
+      );
+      if (error != null) {
+        setState(() {
+          _authError = error;
+        });
+      }
+    }
   }
 
   @override
@@ -66,6 +75,12 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                   ),
                 ),
                 SizedBox(height: 30),
+                if (_authError != null) // Display authentication error
+                  Text(
+                    _authError!,
+                    style: TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                SizedBox(height: 10),
                 TextField(
                   controller: _model.usernameController,
                   keyboardType: TextInputType.text,

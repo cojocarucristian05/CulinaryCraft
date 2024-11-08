@@ -8,7 +8,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       default-schema: public
     properties:
       dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -28,6 +28,11 @@ spring:
 
   constants:
     companyName: "Culinary Craft"
+
+  servlet:
+    multipart:
+      max-request-size: 50MB
+      max-file-size: 50MB
 
 apiVersion: "/api/v1"
 

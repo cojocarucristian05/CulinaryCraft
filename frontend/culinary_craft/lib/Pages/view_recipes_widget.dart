@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import '../Components/Ingredient.dart';
 import '../Components/Recipe.dart';
@@ -7,8 +9,8 @@ import '../Services/auth_service.dart';
 
 class ViewRecipesWidget extends StatefulWidget {
   final List<Ingredient> selectedIngredients;
-
-  ViewRecipesWidget({required this.selectedIngredients});
+  final Uint8List? imageData;
+  ViewRecipesWidget({required this.selectedIngredients, this.imageData});
 
   @override
   _ViewRecipesWidgetState createState() => _ViewRecipesWidgetState();
@@ -63,8 +65,14 @@ class _ViewRecipesWidgetState extends State<ViewRecipesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipes'),
+        title: Text('Recipes',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white)),
+        iconTheme: IconThemeData(
+          color: Colors.white, // Culoarea săgeții de întoarcere
+        ),
+        backgroundColor: Color(0xFF00b4d8),
       ),
+      backgroundColor: Color(0xFF00b4d8),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ListView.builder(
@@ -160,13 +168,15 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // Do something to make the image bigger
-                });
-              },
-              child: _buildRecipeImage(widget.recipe.imageURL),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    // Do something to make the image bigger
+                  });
+                },
+                child: _buildRecipeImage(widget.recipe.imageURL, widget.recipe.imageData),
+              ),
             ),
             SizedBox(height: 16),
             Text(
@@ -204,20 +214,27 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
     );
   }
 
-  Widget _buildRecipeImage(String imageUrl) {
+  Widget _buildRecipeImage(String imageUrl, Uint8List imageData) {
     if (imageUrl.startsWith('http')) {
       return Image.network(
         imageUrl,
-        width: double.infinity,
-        height: 200,
+        width: 350,
+        height: 250,
+        fit: BoxFit.cover,
+      );
+    } else if (imageData.isNotEmpty) {
+      return Image.memory(
+        imageData,
+        width: 350,
+        height: 250,
         fit: BoxFit.cover,
       );
     } else {
-      return Image.asset(
-        imageUrl,
-        width: double.infinity,
-        height: 200,
-        fit: BoxFit.cover,
+      return Container(
+        width: 350,
+        height: 250,
+        color: Colors.grey,
+        child: Icon(Icons.image, size: 50, color: Colors.white),
       );
     }
   }
