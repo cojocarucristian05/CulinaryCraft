@@ -12,4 +12,6 @@ public interface ImageService {
     ImageUploadResponse uploadImage(MultipartFile file) throws IOException;
     Image getInfoByImageByName(String name);
     byte[] getImage(String name);
+
+    String foodRecognition(MultipartFile file);
 }

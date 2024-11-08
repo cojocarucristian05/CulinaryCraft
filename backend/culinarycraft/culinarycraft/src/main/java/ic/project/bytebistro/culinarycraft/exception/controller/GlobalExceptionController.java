@@ -65,4 +65,10 @@ public class GlobalExceptionController {
     public ResponseEntity<String> handleRecipeAlreadyLikedException(RecipeAlreadyLikedException recipeAlreadyLikedException) {
         return new ResponseEntity<>(recipeAlreadyLikedException.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(value = IngredientRecognitionException.class)
+    public ResponseEntity<String> handleIngredientRecognitionException(IngredientRecognitionException ingredientRecognitionException) {
+        return new ResponseEntity<>(ingredientRecognitionException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }
