@@ -10,4 +10,5 @@ public interface IngredientService {
     Page<IngredientDTO> getIngredients(int pageNumber, int pageSize);
     Page<IngredientDTO> getIngredientsSortedByName(int pageNumber, int pageSize);
     Page<IngredientDTO> getIngredientsSortedByNameDescending(int pageNumber, int pageSize);
+    IngredientDTO getIngredientByName(String name);
 }

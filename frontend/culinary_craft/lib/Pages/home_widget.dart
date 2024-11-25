@@ -1,11 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../Components/Ingredient.dart';
 import '../Components/ingredient_widget.dart';
 import '../Components/appbar_widget.dart';
 import '../Services/ingredient_service.dart';
-import '../Services/recipe_service.dart'; // Importăm serviciul pentru rețete
-import 'view_recipes_widget.dart'; // Importăm widget-ul de vizualizare a rețetelor
+import '../Services/recipe_service.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   bool isLoading = false;
   final ScrollController _scrollController = ScrollController();
   late Future<void> _initialLoad;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -54,6 +56,73 @@ class _HomeWidgetState extends State<HomeWidget> {
     }
   }
 
+  Future<void> _scanIngredient(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        print('Image selected: ${pickedFile.path}');
+
+        File imageFile = File(pickedFile.path);
+        final Ingredient? identifiedIngredient = await IngredientService.sendIngredientImage(imageFile);
+
+        if (identifiedIngredient != null) {
+          setState(() {
+            if (!selectedIngredients.contains(identifiedIngredient)) {
+              identifiedIngredient.selected = true;
+              selectedIngredients.add(identifiedIngredient);
+              if(!ingredients.contains(identifiedIngredient)){
+                ingredients.add(identifiedIngredient);
+              }
+            }
+            // Move selected ingredients to the top
+            ingredients.sort((a, b) => b.selected ? 1 : -1);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Ingredient added: ${identifiedIngredient.name}')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No ingredient identified from the image')),
+          );
+        }
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Error picking or uploading image: $e');
+    }
+  }
+
+  void _showImageSourceSelection() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Use Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _scanIngredient(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Select from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _scanIngredient(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -84,6 +153,9 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Widget _buildIngredientList() {
+    // Sort ingredients with selected ingredients at the top
+    ingredients.sort((a, b) => b.selected ? 1 : -1);
+
     return SafeArea(
       top: true,
       child: Padding(
@@ -145,10 +217,9 @@ class _HomeWidgetState extends State<HomeWidget> {
               child: ElevatedButton(
                 onPressed: selectedIngredients.isNotEmpty
                     ? () async {
-                  // Navighează către pagina de vizualizare a rețetelor și trimite lista de rețete
                   Navigator.of(context).pushNamed('/create_recipes', arguments: selectedIngredients);
                 }
-                    : null, // Dezactivează butonul dacă nu sunt ingrediente selectate
+                    : null,
                 child: Text(
                   'Create Recipe',
                   style: GoogleFonts.roboto(
@@ -185,13 +256,36 @@ class _HomeWidgetState extends State<HomeWidget> {
                       ),
                     );
                   } else {
-                    Navigator.of(context).pushNamed('/view_recipes',
-                        arguments: selectedIngredients);
+                    Navigator.of(context).pushNamed('/view_recipes', arguments: selectedIngredients);
                   }
                 }
                     : null,
                 child: Text(
                   'Search Recipes',
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF0077B6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _showImageSourceSelection,
+                child: Text(
+                  'Scan ingredient',
                   style: GoogleFonts.roboto(
                     textStyle: TextStyle(
                       fontSize: 20,
@@ -224,9 +318,8 @@ class _HomeWidgetState extends State<HomeWidget> {
         selectedIngredients.add(ingredient);
         ingredient.selected = true;
       }
-      for (Ingredient ing in selectedIngredients) {
-        print(ing.name);
-      }
+      // Sort selected ingredients at the top
+      ingredients.sort((a, b) => b.selected ? 1 : -1);
     });
   }
 }
