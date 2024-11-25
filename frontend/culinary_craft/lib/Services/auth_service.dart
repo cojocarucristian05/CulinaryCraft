@@ -115,6 +115,7 @@ class AuthService {
       dynamic responseData = jsonDecode(response.body);
       if (responseData is int) {
         print("User ID: $responseData");
+        setId(responseData);
         Navigator.of(context).pushNamed('/reset_password_with_code');
       } else {
         print("Error: Unexpected response format");
@@ -140,7 +141,29 @@ class AuthService {
     print("status: ${response.statusCode}");
 
     if (response.statusCode == 200) {
-      Navigator.of(context).pushNamed('/home');
+      Navigator.of(context).pushNamed('/change_password');
+    } else {
+      print("Error!");
+    }
+  }
+
+  static void changePassword(BuildContext context, String password) async {
+    var bytesPassword = utf8.encode(password);
+    var hashPassword = sha256.convert(bytesPassword);
+    int? id = await getId();
+    var url = Uri.parse("$baseURL/change-password$ID_REQUEST_PARAMETER=$id");
+    Map<String, String> cookies = {};
+
+    http.Response response = await http.put(
+        url,
+        headers: headers,
+        body: hashPassword.toString()
+    );
+
+    print("status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).pushNamed('/signin_with_google_or_facebook');
     } else {
       print("Error!");
     }
